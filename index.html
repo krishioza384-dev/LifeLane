@@ -1,0 +1,1832 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LifeLane — Every Second Has a Destination</title>
+  <meta name="description" content="LifeLane connects ambulances, hospitals and traffic command in real time.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --font-serif: 'Instrument Serif', Georgia, serif;
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --gold-accent: #FFB800;
+      --gold-hover: #E5A400;
+      --emerald-accent: #22E06B;
+      --glass-bg: rgba(8, 14, 22, 0.65);
+      --glass-border: rgba(255, 184, 0, 0.18);
+      --text-main: #FFFFFF;
+      --text-muted: #94A3B8;
+    }
+
+    html, body {
+      width: 100%;
+      min-height: 100%;
+      background-color: #000000;
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+      scroll-behavior: auto;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* 1. Fixed full-screen background viewport for 292-frame canvas */
+    #lifelane-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      display: block;
+      pointer-events: none;
+      z-index: 1;
+      background-color: #000000;
+    }
+
+    /* 2. Invisible scroll space element providing document scroll range */
+    .lifelane-scroll-space {
+      height: 1000vh;
+      width: 100%;
+      position: relative;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    /* ---------------------------------------------------- */
+    /* 3. HERO UI OVERLAY LAYER (Frame 001 -> Frame 039)     */
+    /* ---------------------------------------------------- */
+    .hero-overlay-layer {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 10;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 3rem 3rem 2.25rem 3rem;
+      background: linear-gradient(
+        90deg,
+        rgba(3, 8, 15, 0.85) 0%,
+        rgba(3, 8, 15, 0.5) 45%,
+        rgba(3, 8, 15, 0) 85%
+      );
+      transition: opacity 0.25s ease, visibility 0.25s ease;
+    }
+
+    .hero-overlay-layer.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .hero-content-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 3rem;
+      align-items: center;
+      margin-top: 1rem;
+    }
+
+    .hero-left {
+      pointer-events: auto;
+      max-width: 680px;
+    }
+
+    .eyebrow-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--gold-accent);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      background: rgba(255, 184, 0, 0.12);
+      border: 1px solid rgba(255, 184, 0, 0.3);
+      padding: 0.35rem 0.85rem;
+      border-radius: 50px;
+      margin-bottom: 1.25rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    }
+
+    .pulse-dot {
+      width: 6px;
+      height: 6px;
+      background-color: var(--gold-accent);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--gold-accent);
+    }
+
+    .hero-headline {
+      font-family: var(--font-serif);
+      font-size: clamp(3rem, 5.2vw, 4.85rem);
+      line-height: 1.05;
+      font-weight: 400;
+      color: var(--text-main);
+      margin-bottom: 1.25rem;
+      letter-spacing: -0.01em;
+      text-shadow: 0 4px 24px rgba(0, 0, 0, 0.9), 0 1px 4px rgba(0, 0, 0, 0.8);
+    }
+
+    .accent-text {
+      color: var(--gold-accent);
+      font-style: italic;
+    }
+
+    .hero-description {
+      font-size: 1.05rem;
+      line-height: 1.6;
+      color: #E2E8F0;
+      margin-bottom: 2rem;
+      max-width: 580px;
+      text-shadow: 0 2px 14px rgba(0, 0, 0, 0.9), 0 1px 3px rgba(0, 0, 0, 0.8);
+    }
+
+    .btn-cta-gold {
+      pointer-events: auto;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #05080C;
+      background: var(--gold-accent);
+      padding: 0.85rem 2.25rem;
+      border-radius: 50px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      letter-spacing: 0.04em;
+      box-shadow: 0 8px 24px rgba(255, 184, 0, 0.35);
+      transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+    }
+
+    .btn-cta-gold:hover {
+      background: var(--gold-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 30px rgba(255, 184, 0, 0.5);
+    }
+
+    .hero-right {
+      pointer-events: auto;
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .glass-card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 1.5rem 1.75rem;
+      width: 100%;
+      max-width: 360px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+    }
+
+    .hospital-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1.25rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .hospital-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .hospital-icon {
+      width: 36px;
+      height: 36px;
+      background: rgba(255, 184, 0, 0.15);
+      border: 1px solid rgba(255, 184, 0, 0.3);
+      color: var(--gold-accent);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .hospital-name {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .freshness-tag {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-top: 0.15rem;
+    }
+
+    .status-badge {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      padding: 0.25rem 0.55rem;
+      border-radius: 50px;
+      font-weight: 600;
+    }
+
+    .badge-green {
+      background: rgba(34, 224, 107, 0.15);
+      color: var(--emerald-accent);
+      border: 1px solid rgba(34, 224, 107, 0.3);
+    }
+
+    .resource-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
+    }
+
+    .resource-item {
+      background: rgba(5, 8, 12, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 12px;
+      padding: 0.75rem 0.5rem;
+      text-align: center;
+    }
+
+    .resource-label {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-bottom: 0.25rem;
+      font-weight: 500;
+    }
+
+    .resource-val {
+      font-family: var(--font-mono);
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--gold-accent);
+    }
+
+    .bottom-features-strip {
+      pointer-events: auto;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.25rem;
+      margin-top: 1.5rem;
+    }
+
+    .feature-card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      padding: 1.15rem 1.25rem;
+      transition: transform 0.25s ease, border-color 0.25s ease;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(255, 184, 0, 0.4);
+    }
+
+    .feature-card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+    }
+
+    .feature-icon {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--gold-accent);
+      width: 26px;
+      height: 26px;
+      background: rgba(255, 184, 0, 0.12);
+      border: 1px solid rgba(255, 184, 0, 0.25);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .feature-arrow {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      transition: color 0.2s, transform 0.2s;
+    }
+
+    .feature-card:hover .feature-arrow {
+      color: var(--gold-accent);
+      transform: translateX(3px);
+    }
+
+    .feature-title {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-main);
+      margin-bottom: 0.35rem;
+    }
+
+    .feature-desc {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+
+    /* ---------------------------------------------------- */
+    /* 4. HOW LIFELANE WORKS OVERLAY (Frame 040 -> Frame 112) */
+    /* ---------------------------------------------------- */
+    .how-it-works-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 10;
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2.5rem 3rem 2.5rem 3rem;
+      /* Subtle overall dark atmosphere, NO BACKDROP BLUR -> background stays 100% SHARP */
+      background: radial-gradient(circle at center, rgba(3, 8, 15, 0.40) 0%, rgba(3, 8, 15, 0.15) 70%, rgba(3, 8, 15, 0) 100%);
+      transition: opacity 0.25s ease, visibility 0.25s ease;
+    }
+
+    .how-it-works-overlay.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .hiw-container {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      text-align: center;
+    }
+
+    /* Localized dark atmospheric vignette behind header text (NO BOX, NO BLUR) */
+    .hiw-header {
+      margin-top: 1rem;
+      max-width: 780px;
+      padding: 2.25rem 2.75rem;
+      border-radius: 30px;
+      background: radial-gradient(
+        ellipse at center,
+        rgba(3, 8, 15, 0.88) 0%,
+        rgba(3, 8, 15, 0.68) 45%,
+        rgba(3, 8, 15, 0.25) 75%,
+        transparent 100%
+      );
+      pointer-events: auto;
+    }
+
+    .hiw-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--gold-accent);
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      margin-bottom: 0.75rem;
+      text-shadow: 0 0 10px rgba(255, 184, 0, 0.4), 0 2px 6px rgba(0, 0, 0, 0.95);
+    }
+
+    .hiw-line {
+      width: 24px;
+      height: 1px;
+      background: var(--gold-accent);
+      opacity: 0.75;
+      box-shadow: 0 0 6px var(--gold-accent);
+    }
+
+    .hiw-heading {
+      font-family: var(--font-serif);
+      font-size: clamp(2.4rem, 4vw, 3.6rem);
+      line-height: 1.1;
+      font-weight: 400;
+      color: #FFFFFF;
+      margin-bottom: 0.85rem;
+      text-shadow: 0 3px 14px rgba(0, 0, 0, 0.95), 0 1px 4px rgba(0, 0, 0, 0.9);
+    }
+
+    .hiw-description {
+      font-size: 0.98rem;
+      line-height: 1.6;
+      color: #F1F5F9;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.95), 0 1px 3px rgba(0, 0, 0, 0.9);
+      max-width: 640px;
+      margin: 0 auto;
+    }
+
+    /* Cards Wrapper positioned at lower viewport area (~bottom 20-25%) */
+    .hiw-cards-wrapper {
+      pointer-events: auto;
+      width: 100%;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.75rem;
+      margin-bottom: 1rem;
+    }
+
+    /* Compact Translucent Glass Cards with enhanced text legibility (NO BLUR) */
+    .hiw-card {
+      position: relative;
+      z-index: 2;
+      background: rgba(4, 9, 17, 0.25);
+      /* NO backdrop-filter blur! Background stays 100% SHARP */
+      border: 1px solid rgba(255, 193, 7, 0.32);
+      border-radius: 18px;
+      padding: 1.25rem 1.35rem;
+      text-align: left;
+      min-height: 190px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+      transition: transform 0.3s ease, opacity 0.3s ease, border-color 0.25s ease, background 0.25s ease;
+    }
+
+    .hiw-card:hover {
+      border-color: rgba(255, 184, 0, 0.60);
+      background: rgba(4, 9, 17, 0.38);
+    }
+
+    .hiw-card.card-featured {
+      border-color: rgba(255, 193, 7, 0.45);
+      box-shadow: 0 10px 35px rgba(0, 0, 0, 0.30), 0 0 15px rgba(255, 184, 0, 0.12);
+      background: rgba(6, 13, 24, 0.28);
+    }
+
+    .card-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+    }
+
+    .card-num-badge {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #05080C;
+      background: var(--gold-accent);
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 10px rgba(255, 184, 0, 0.4);
+    }
+
+    .card-icon-box {
+      width: 34px;
+      height: 34px;
+      background: rgba(15, 20, 30, 0.65);
+      border: 1px solid rgba(255, 184, 0, 0.35);
+      color: var(--gold-accent);
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .hiw-card-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      color: #FFFFFF;
+      margin-bottom: 0.85rem;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.95);
+    }
+
+    .hiw-feature-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.15);
+      padding-top: 0.75rem;
+    }
+
+    .hiw-feature-list li {
+      font-size: 0.84rem;
+      color: #F8FAFC;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.95);
+    }
+
+    .check-icon {
+      color: var(--emerald-accent);
+      font-weight: 700;
+      font-size: 0.85rem;
+      text-shadow: 0 0 8px rgba(34, 224, 107, 0.4), 0 2px 4px rgba(0, 0, 0, 0.95);
+    }
+
+    /* ---------------------------------------------------- */
+    /* 5. LIVE RESPONSE CENTERPIECE (Frame 160 -> Frame 180) */
+    /* ---------------------------------------------------- */
+    .live-response-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 10;
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 3rem;
+      /* Darkens outer surrounding canvas while keeping the right map viewport bright & clear */
+      background: radial-gradient(ellipse at 70% 55%, rgba(3, 8, 15, 0.20) 0%, rgba(3, 8, 15, 0.65) 50%, rgba(3, 8, 15, 0.92) 100%);
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+
+    .live-response-overlay.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .lrc-container {
+      width: 100%;
+      max-width: 1280px;
+      margin: 0 auto;
+      height: 100%;
+      max-height: 860px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .lrc-header {
+      pointer-events: auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      padding: 1.25rem 2rem;
+      border-radius: 20px;
+      background: radial-gradient(
+        ellipse at center,
+        rgba(3, 8, 15, 0.88) 0%,
+        rgba(3, 8, 15, 0.65) 50%,
+        rgba(3, 8, 15, 0.20) 80%,
+        transparent 100%
+      );
+      margin-bottom: 1rem;
+    }
+
+    .lrc-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--gold-accent);
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      margin-bottom: 0.4rem;
+      text-shadow: 0 0 10px rgba(255, 184, 0, 0.4), 0 2px 6px rgba(0, 0, 0, 0.95);
+    }
+
+    .lrc-dot {
+      width: 7px;
+      height: 7px;
+      background: var(--gold-accent);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--gold-accent);
+    }
+
+    .lrc-heading {
+      font-family: var(--font-serif);
+      font-size: clamp(2rem, 3.2vw, 2.8rem);
+      line-height: 1.1;
+      font-weight: 400;
+      color: #FFFFFF;
+      text-shadow: 0 3px 14px rgba(0, 0, 0, 0.95);
+    }
+
+    .lrc-mission-badge {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      background: rgba(15, 23, 42, 0.75);
+      border: 1px solid rgba(255, 184, 0, 0.35);
+      padding: 0.5rem 1rem;
+      border-radius: 50px;
+      display: flex;
+      gap: 0.5rem;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    }
+
+    .badge-label {
+      color: var(--text-muted);
+    }
+
+    .badge-val {
+      color: var(--gold-accent);
+      font-weight: 700;
+    }
+
+    /* Main Grid Layout: LEFT Info Panel (~32%), RIGHT Map Viewport (~66%) */
+    .lrc-dashboard-grid {
+      width: 100%;
+      flex: 1;
+      display: grid;
+      grid-template-columns: 32% 66%;
+      gap: 2%;
+      align-items: stretch;
+      min-height: 0;
+    }
+
+    /* Map Viewport HUD Frame on the RIGHT (Ultra-clear, BRIGHT canvas sequence visible inside) */
+    .lrc-map-viewport {
+      pointer-events: auto;
+      position: relative;
+      border: 1px solid rgba(255, 193, 7, 0.35);
+      border-radius: 20px;
+      /* Almost transparent surface so 292-frame canvas renders BRIGHT and CLEAR inside */
+      background: rgba(5, 10, 18, 0.05);
+      box-shadow: 0 0 25px rgba(255, 184, 0, 0.15), inset 0 0 40px rgba(0, 0, 0, 0.3);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 1.25rem;
+      overflow: hidden;
+    }
+
+    /* Localized gradient at top of map viewport behind HUD chips for slight contrast */
+    .map-hud-top {
+      display: flex;
+      gap: 0.75rem;
+      z-index: 5;
+      padding: 0.25rem 0.5rem;
+      border-radius: 14px;
+      background: linear-gradient(180deg, rgba(3, 8, 15, 0.60) 0%, rgba(3, 8, 15, 0) 100%);
+    }
+
+    .hud-status-chip {
+      background: rgba(8, 14, 24, 0.78);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 12px;
+      padding: 0.5rem 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-size: 0.78rem;
+      color: #E2E8F0;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9);
+    }
+
+    .hud-status-chip.active-chip {
+      border-color: rgba(255, 184, 0, 0.45);
+      background: rgba(12, 20, 32, 0.88);
+    }
+
+    .chip-num {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      color: var(--gold-accent);
+      font-size: 0.75rem;
+    }
+
+    .chip-title {
+      font-weight: 600;
+      letter-spacing: 0.04em;
+    }
+
+    .chip-badge {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+
+    .badge-warning {
+      background: rgba(255, 184, 0, 0.2);
+      color: var(--gold-accent);
+      border: 1px solid rgba(255, 184, 0, 0.4);
+    }
+
+    .badge-success {
+      background: rgba(34, 224, 107, 0.2);
+      color: var(--emerald-accent);
+      border: 1px solid rgba(34, 224, 107, 0.4);
+    }
+
+    .badge-emerald {
+      background: rgba(34, 224, 107, 0.25);
+      color: var(--emerald-accent);
+      border: 1px solid rgba(34, 224, 107, 0.5);
+    }
+
+    .chip-arrow {
+      color: var(--text-muted);
+      font-size: 1rem;
+    }
+
+    /* Bottom Map Controls UI */
+    .map-hud-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      z-index: 5;
+    }
+
+    .map-mode-toggle {
+      display: flex;
+      background: rgba(8, 14, 24, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 8px;
+      padding: 2px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    }
+
+    .map-toggle-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-family: var(--font-sans);
+      font-size: 0.75rem;
+      padding: 0.3rem 0.75rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    .map-toggle-btn.active {
+      background: rgba(255, 184, 0, 0.25);
+      color: #FFFFFF;
+      font-weight: 600;
+      border: 1px solid rgba(255, 184, 0, 0.4);
+    }
+
+    .map-brand-attribution {
+      font-size: 0.68rem;
+      color: rgba(255, 255, 255, 0.5);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(4, 8, 14, 0.75);
+      padding: 0.25rem 0.65rem;
+      border-radius: 6px;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+    }
+
+    .map-logo-text {
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      color: #E2E8F0;
+    }
+
+    /* Right Info Panel */
+    .lrc-info-panel {
+      pointer-events: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+      height: 100%;
+    }
+
+    .info-card {
+      background: rgba(6, 12, 20, 0.65);
+      border: 1px solid rgba(255, 193, 7, 0.28);
+      border-radius: 16px;
+      padding: 1rem 1.15rem;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .active-corridor-card {
+      background: rgba(6, 14, 22, 0.75);
+    }
+
+    .corridor-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .corridor-title-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .pulse-emerald-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--emerald-accent);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--emerald-accent);
+    }
+
+    .corridor-title {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #FFFFFF;
+      letter-spacing: 0.08em;
+    }
+
+    .status-pill-emerald {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: var(--emerald-accent);
+      background: rgba(34, 224, 107, 0.15);
+      border: 1px solid rgba(34, 224, 107, 0.35);
+      padding: 0.25rem 0.6rem;
+      border-radius: 50px;
+    }
+
+    .info-card-header {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .info-card-icon {
+      color: var(--gold-accent);
+      display: flex;
+      align-items: center;
+    }
+
+    .info-card-label {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--gold-accent);
+      letter-spacing: 0.08em;
+    }
+
+    .patient-status-row {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #FFFFFF;
+      margin-bottom: 0.4rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .patient-severity {
+      color: #FF5555;
+    }
+
+    .dot-separator {
+      color: var(--text-muted);
+    }
+
+    .patient-condition {
+      color: #FFFFFF;
+    }
+
+    .patient-details {
+      font-size: 0.8rem;
+      color: #CBD5E1;
+      line-height: 1.45;
+    }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+    }
+
+    .metric-card {
+      padding: 0.85rem 1rem;
+    }
+
+    .metric-label {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      margin-bottom: 0.35rem;
+      font-weight: 600;
+    }
+
+    .metric-val {
+      font-family: var(--font-mono);
+      font-size: 1.6rem;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .gold-val {
+      color: var(--gold-accent);
+      text-shadow: 0 0 12px rgba(255, 184, 0, 0.3);
+    }
+
+    .emerald-val {
+      color: var(--emerald-accent);
+      text-shadow: 0 0 12px rgba(34, 224, 107, 0.3);
+    }
+
+    .metric-unit {
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      margin-left: 0.2rem;
+    }
+
+    .bed-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .bed-icon-box {
+      width: 34px;
+      height: 34px;
+      background: rgba(255, 184, 0, 0.12);
+      border: 1px solid rgba(255, 184, 0, 0.3);
+      color: var(--gold-accent);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .bed-label {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    .bed-value {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #FFFFFF;
+      margin-top: 0.1rem;
+    }
+
+    .btn-log-cta {
+      margin-top: auto;
+      background: rgba(12, 20, 32, 0.75);
+      border: 1px solid rgba(255, 184, 0, 0.35);
+      border-radius: 12px;
+      padding: 0.85rem 1.15rem;
+      color: #FFFFFF;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-decoration: none;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+      transition: background 0.2s, border-color 0.2s;
+    }
+
+    .btn-log-cta:hover {
+      background: rgba(18, 30, 48, 0.85);
+      border-color: var(--gold-accent);
+    }
+
+    .btn-arrow {
+      color: var(--gold-accent);
+    }
+
+    /* ---------------------------------------------------- */
+    /* 6. FINAL LANDING STATE (Frame 285 -> Frame 292)      */
+    /* ---------------------------------------------------- */
+    .final-landing-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 100 !important;
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2.5rem 2rem;
+      /* Soft atmospheric localized gradient behind typography only, NO BACKDROP BLUR */
+      background: radial-gradient(ellipse at center, rgba(3, 8, 15, 0.78) 0%, rgba(3, 8, 15, 0.48) 45%, rgba(3, 8, 15, 0.15) 75%, transparent 100%);
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+
+    .final-landing-overlay.hidden {
+      opacity: 0 !important;
+      visibility: hidden !important;
+      pointer-events: none !important;
+    }
+
+    .fl-container {
+      pointer-events: auto;
+      width: 100%;
+      max-width: 880px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    .fl-eyebrow-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      color: var(--gold-accent);
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      background: rgba(8, 14, 24, 0.80);
+      border: 1px solid rgba(255, 184, 0, 0.35);
+      padding: 0.45rem 1.15rem;
+      border-radius: 50px;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5), 0 0 12px rgba(255, 184, 0, 0.15);
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9);
+    }
+
+    .fl-infinity-symbol {
+      font-size: 1.1rem;
+      line-height: 1;
+      color: var(--gold-accent);
+      text-shadow: 0 0 8px var(--gold-accent);
+    }
+
+    .fl-heading {
+      font-family: var(--font-serif);
+      font-size: clamp(2.8rem, 5.2vw, 4.8rem);
+      line-height: 1.08;
+      font-weight: 400;
+      color: #FFFFFF;
+      margin-bottom: 1.25rem;
+      text-shadow: 0 3px 18px rgba(0, 0, 0, 0.95), 0 1px 4px rgba(0, 0, 0, 0.9);
+    }
+
+    .accent-text-italic {
+      color: var(--gold-accent);
+      font-style: italic;
+      text-shadow: 0 0 20px rgba(255, 184, 0, 0.35), 0 3px 18px rgba(0, 0, 0, 0.95);
+    }
+
+    .fl-description {
+      font-size: 1.05rem;
+      line-height: 1.6;
+      color: #E2E8F0;
+      max-width: 640px;
+      margin: 0 auto 2.25rem auto;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.95), 0 1px 3px rgba(0, 0, 0, 0.9);
+    }
+
+    .fl-cta-wrap {
+      margin-bottom: 2.75rem;
+    }
+
+    .btn-final-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 1rem;
+      font-weight: 700;
+      color: #FFFFFF;
+      background: rgba(12, 20, 32, 0.82);
+      border: 1px solid rgba(255, 184, 0, 0.45);
+      padding: 0.95rem 2.5rem;
+      border-radius: 50px;
+      text-decoration: none;
+      letter-spacing: 0.04em;
+      box-shadow: 0 0 25px rgba(255, 184, 0, 0.25), 0 8px 30px rgba(0, 0, 0, 0.6);
+      transition: background 0.25s, transform 0.25s, border-color 0.25s, box-shadow 0.25s;
+    }
+
+    .btn-final-cta:hover {
+      background: rgba(18, 30, 48, 0.92);
+      border-color: var(--gold-accent);
+      transform: translateY(-2px);
+      box-shadow: 0 0 35px rgba(255, 184, 0, 0.45), 0 12px 35px rgba(0, 0, 0, 0.7);
+    }
+
+    .btn-final-arrow {
+      color: var(--gold-accent);
+      font-size: 1.1rem;
+      transition: transform 0.2s ease;
+    }
+
+    .btn-final-cta:hover .btn-final-arrow {
+      transform: translateX(4px);
+    }
+
+    .fl-bottom-label {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--gold-accent);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      opacity: 0.9;
+      text-shadow: 0 2px 6px rgba(0, 0, 0, 0.95);
+    }
+
+    .fl-divider-line {
+      width: 40px;
+      height: 1px;
+      background: var(--gold-accent);
+      opacity: 0.6;
+      box-shadow: 0 0 6px var(--gold-accent);
+    }
+
+    /* Media Queries for Responsiveness */
+    @media (max-width: 1024px) {
+      .hero-overlay-layer {
+        padding: 2rem 1.5rem;
+      }
+      .hero-content-grid {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+      }
+      .hero-right {
+        justify-content: flex-start;
+      }
+      .bottom-features-strip {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .hiw-cards-wrapper {
+        grid-template-columns: 1fr;
+        gap: 1.25rem;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .bottom-features-strip {
+        display: none;
+      }
+      .hero-headline {
+        font-size: 2.5rem;
+      }
+      .hiw-heading {
+        font-size: 2.2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Fixed Fullscreen Cinematic Canvas (DO NOT TOUCH) -->
+  <canvas id="lifelane-canvas"></canvas>
+
+  <!-- 1. Hero UI Overlay Layer (Visible Frame 001 -> Frame 039) -->
+  <div class="hero-overlay-layer" id="heroOverlay">
+    <div class="hero-content-grid">
+      <!-- Left Column -->
+      <div class="hero-left">
+        <div class="eyebrow-badge">
+          <span class="pulse-dot"></span>
+          REAL-TIME EMERGENCY COORDINATION
+        </div>
+        <h1 class="hero-headline">
+          Every Second<br>
+          <span class="accent-text">Has a Destination.</span>
+        </h1>
+        <p class="hero-description">
+          LifeLane connects ambulances, hospitals and traffic command in real time — helping emergency teams find available care, secure resources and reach the right hospital faster.
+        </p>
+        <div>
+          <a href="#" class="btn-cta-gold">GET STARTED &rarr;</a>
+        </div>
+      </div>
+
+      <!-- Right Column Info Card -->
+      <div class="hero-right">
+        <div class="glass-card">
+          <div class="hospital-card-header">
+            <div class="hospital-title-wrap">
+              <div class="hospital-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 14c1.49 0 2.87.47 4 1.26V8c0-1.1-.9-2-2-2h-4V3c0-.55-.45-1-1-1H8c-.55 0-1 .45-1 1v3H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12.3c-.8-1.16-1.3-2.52-1.3-4zm-8-7h2v3h3v2h-3v3h-2v-3H8v-2h3V7z"/></svg>
+              </div>
+              <div>
+                <div class="hospital-name">City Care Hospital</div>
+                <div class="freshness-tag">Updated 42 sec ago</div>
+              </div>
+            </div>
+            <span class="status-badge badge-green">&#10003; Bed Held</span>
+          </div>
+
+          <div class="resource-grid">
+            <div class="resource-item">
+              <div class="resource-label">ICU</div>
+              <div class="resource-val">1</div>
+            </div>
+            <div class="resource-item">
+              <div class="resource-label">Ventilator</div>
+              <div class="resource-val">1</div>
+            </div>
+            <div class="resource-item">
+              <div class="resource-label">Oxygen</div>
+              <div class="resource-val">2</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Feature Cards Strip -->
+    <div class="bottom-features-strip">
+      <div class="feature-card">
+        <div class="feature-card-top">
+          <div class="feature-icon">01</div>
+          <div class="feature-arrow">&rarr;</div>
+        </div>
+        <div class="feature-title">Live Bed Availability</div>
+        <div class="feature-desc">Know which hospitals have the required resources — and how fresh that data is.</div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-card-top">
+          <div class="feature-icon">02</div>
+          <div class="feature-arrow">&rarr;</div>
+        </div>
+        <div class="feature-title">Smart Hospital Matching</div>
+        <div class="feature-desc">Match emergency cases with suitable hospitals based on requirements, location and availability.</div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-card-top">
+          <div class="feature-icon">03</div>
+          <div class="feature-arrow">&rarr;</div>
+        </div>
+        <div class="feature-title">Bed Confirmation</div>
+        <div class="feature-desc">Confirm and hold a suitable bed before the ambulance commits to the destination.</div>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-card-top">
+          <div class="feature-icon">04</div>
+          <div class="feature-arrow">&rarr;</div>
+        </div>
+        <div class="feature-title">Emergency Green Corridor</div>
+        <div class="feature-desc">Coordinate the ambulance route with traffic control to reduce unnecessary delay.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. "How LifeLane Works" UI Overlay Layer (Visible Frame 040 -> Frame 112) -->
+  <div class="how-it-works-overlay hidden" id="howItWorksOverlay">
+    <div class="hiw-container">
+      
+      <!-- Upper Section Header -->
+      <div class="hiw-header">
+        <div class="hiw-eyebrow">
+          <span class="hiw-line"></span>
+          <span>HOW LIFELANE WORKS</span>
+          <span class="hiw-line"></span>
+        </div>
+        <h2 class="hiw-heading">
+          One Emergency.<br>
+          <span class="accent-text">One Connected Response.</span>
+        </h2>
+        <p class="hiw-description">
+          From the first telemetry ping to the trauma bay intake, every participant moves in unison from an integrated real-time picture.
+        </p>
+      </div>
+
+      <!-- Lower Compact 3-Card Grid (Progressive One-by-One Reveal) -->
+      <div class="hiw-cards-wrapper">
+        
+        <!-- Card 01: AMBULANCE (Revealed Frame 040 -> 060) -->
+        <div class="hiw-card" id="hiwCard1">
+          <div class="card-header-row">
+            <div class="card-num-badge">01</div>
+            <div class="card-icon-box">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13" rx="2"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/><path d="M7 8h4M9 6v4"/></svg>
+            </div>
+          </div>
+          <h3 class="hiw-card-title">AMBULANCE</h3>
+          <ul class="hiw-feature-list">
+            <li><span class="check-icon">&check;</span> Live Patient Vitals</li>
+            <li><span class="check-icon">&check;</span> Automated Triage Protocol</li>
+            <li><span class="check-icon">&check;</span> Synchronized Arrival ETA</li>
+          </ul>
+        </div>
+
+        <!-- Card 02: HOSPITAL (Revealed Frame 060 -> 085) -->
+        <div class="hiw-card card-featured" id="hiwCard2">
+          <div class="card-header-row">
+            <div class="card-num-badge">02</div>
+            <div class="card-icon-box">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 14c1.49 0 2.87.47 4 1.26V8c0-1.1-.9-2-2-2h-4V3c0-.55-.45-1-1-1H8c-.55 0-1 .45-1 1v3H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12.3c-.8-1.16-1.3-2.52-1.3-4zm-8-7h2v3h3v2h-3v3h-2v-3H8v-2h3V7z"/></svg>
+            </div>
+          </div>
+          <h3 class="hiw-card-title">HOSPITAL</h3>
+          <ul class="hiw-feature-list">
+            <li><span class="check-icon">&check;</span> Real-Time Bay Allocation</li>
+            <li><span class="check-icon">&check;</span> One-Click Patient Acceptance</li>
+            <li><span class="check-icon">&check;</span> Cath Lab Staging Pre-Arrival</li>
+          </ul>
+        </div>
+
+        <!-- Card 03: TRAFFIC (Revealed Frame 085 -> 112) -->
+        <div class="hiw-card" id="hiwCard3">
+          <div class="card-header-row">
+            <div class="card-num-badge">03</div>
+            <div class="card-icon-box">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="2" width="12" height="20" rx="6"/><circle cx="12" cy="7" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="17" r="2"/></svg>
+            </div>
+          </div>
+          <h3 class="hiw-card-title">TRAFFIC</h3>
+          <ul class="hiw-feature-list">
+            <li><span class="check-icon">&check;</span> Dynamic Wave Signal Control</li>
+            <li><span class="check-icon">&check;</span> 2+ Minutes Transit Cut</li>
+            <li><span class="check-icon">&check;</span> Autonomous Preemption Link</li>
+          </ul>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 3. "Live Response Centerpiece" UI Overlay Layer (Visible Frame 160 -> Frame 180) -->
+  <div class="live-response-overlay hidden" id="liveResponseOverlay">
+    <div class="lrc-container">
+      
+      <!-- Top Section Header -->
+      <div class="lrc-header">
+        <div class="lrc-header-left">
+          <div class="lrc-eyebrow">
+            <span class="lrc-dot"></span>
+            <span>LIVE RESPONSE CENTERPIECE</span>
+          </div>
+          <h2 class="lrc-heading">
+            See the Response <span class="accent-text">Come Together.</span>
+          </h2>
+        </div>
+        <div class="lrc-mission-badge">
+          <span class="badge-label">MISSION ID:</span>
+          <span class="badge-val">LL-2024-0718</span>
+        </div>
+      </div>
+
+      <!-- Main Dashboard Grid (LEFT Info Panel ~32%, RIGHT Map Viewport ~66%) -->
+      <div class="lrc-dashboard-grid">
+        
+        <!-- LEFT: Information Panel Console -->
+        <div class="lrc-info-panel">
+          
+          <!-- Active Corridor Header -->
+          <div class="info-card active-corridor-card">
+            <div class="corridor-header">
+              <div class="corridor-title-row">
+                <span class="pulse-emerald-dot"></span>
+                <span class="corridor-title">ACTIVE CORRIDOR</span>
+              </div>
+              <span class="status-pill-emerald">GREEN WAVE ACTIVE</span>
+            </div>
+          </div>
+
+          <!-- Patient Assessment Card -->
+          <div class="info-card patient-card">
+            <div class="info-card-header">
+              <div class="info-card-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+              </div>
+              <div class="info-card-label">PATIENT ASSESSMENT</div>
+            </div>
+            <div class="patient-status-row">
+              <span class="patient-severity">Critical</span>
+              <span class="dot-separator">&bull;</span>
+              <span class="patient-condition">Cardiac STEMI</span>
+            </div>
+            <div class="patient-details">
+              <p>ECG transmitted 90s ago.</p>
+              <p>Heparin bolus administered.</p>
+            </div>
+          </div>
+
+          <!-- Metrics Row: 2 Compact Cards -->
+          <div class="metrics-grid">
+            <div class="info-card metric-card">
+              <div class="metric-label">SYNCHRONOUS ETA</div>
+              <div class="metric-val gold-val">06 <span class="metric-unit">MIN</span></div>
+            </div>
+            <div class="info-card metric-card">
+              <div class="metric-label">TIME DELTA SAVED</div>
+              <div class="metric-val emerald-val">02 <span class="metric-unit">MIN</span></div>
+            </div>
+          </div>
+
+          <!-- Bed Assignment Card -->
+          <div class="info-card bed-card">
+            <div class="bed-header">
+              <div class="bed-icon-box">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 4v16M2 8h18a2 2 0 0 1 2 2v10M2 17h20M6 8v9"/></svg>
+              </div>
+              <div>
+                <div class="bed-label">Target Bay Assigned</div>
+                <div class="bed-value">BAY 02 (ICU)</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom Button -->
+          <a href="#" onclick="return false;" class="btn-log-cta">
+            <span>View Full Transmission Log</span>
+            <span class="btn-arrow">&rarr;</span>
+          </a>
+
+        </div>
+
+        <!-- RIGHT: Large Cinematic Map Viewport Panel (Transparent Window showing 292-Frame Canvas Animation underneath) -->
+        <div class="lrc-map-viewport">
+          
+          <!-- Top HUD Overlay Status Bar -->
+          <div class="map-hud-top">
+            <div class="hud-status-chip">
+              <span class="chip-num">01</span>
+              <span class="chip-title">AMBULANCE</span>
+              <span class="chip-badge badge-warning">EN ROUTE</span>
+              <span class="chip-arrow">&rsaquo;</span>
+            </div>
+            <div class="hud-status-chip">
+              <span class="chip-num">02</span>
+              <span class="chip-title">HOSPITAL</span>
+              <span class="chip-badge badge-success">PREPARED</span>
+              <span class="chip-arrow">&rsaquo;</span>
+            </div>
+            <div class="hud-status-chip active-chip">
+              <span class="chip-num">03</span>
+              <span class="chip-title">TRAFFIC</span>
+              <span class="chip-badge badge-emerald">CORRIDOR ACTIVE</span>
+            </div>
+          </div>
+
+          <!-- Bottom Left HUD Map Controls -->
+          <div class="map-hud-bottom">
+            <div class="map-mode-toggle">
+              <button class="map-toggle-btn active">Map</button>
+              <button class="map-toggle-btn">Satellite</button>
+            </div>
+            <div class="map-brand-attribution">
+              <span class="map-logo-text">Google</span>
+              <span class="map-copyright-text">Map data &copy;2026 LifeLane Response Grid</span>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 4. "Final Landing State" UI Overlay Layer (Visible Frame 285 -> Frame 292) -->
+  <div class="final-landing-overlay hidden" id="finalLandingOverlay">
+    <div class="fl-container">
+      
+      <!-- Top Eyebrow Pill -->
+      <div class="fl-eyebrow-pill">
+        <span class="fl-infinity-symbol">&infin;</span>
+        <span>THE UNIFIED EMERGENCY INFRASTRUCTURE</span>
+      </div>
+
+      <!-- Main Headline -->
+      <h1 class="fl-heading">
+        Every Second Should<br>
+        <span class="accent-text-italic">Move You Closer.</span>
+      </h1>
+
+      <!-- Description -->
+      <p class="fl-description">
+        LifeLane orchestrates hospitals, first responders, and municipal signal systems into one effortless, life-preserving flow.
+      </p>
+
+      <!-- CTA Button -->
+      <div class="fl-cta-wrap">
+        <a href="#" onclick="return false;" class="btn-final-cta">
+          <span>Enter LifeLane</span>
+          <span class="btn-final-arrow">&rarr;</span>
+        </a>
+      </div>
+
+      <!-- Bottom Technical Label -->
+      <div class="fl-bottom-label">
+        <span class="fl-divider-line"></span>
+        <span>EMERGENCY COORDINATION NETWORK &nbsp;&mdash;&nbsp; AUTONOMOUS SIGNAL &amp; CAPACITY MESH</span>
+        <span class="fl-divider-line"></span>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Document Scroll Height Provider (DO NOT TOUCH) -->
+  <div class="lifelane-scroll-space"></div>
+
+  <!-- 292-FRAME SCROLL CANVAS ENGINE (DO NOT TOUCH) -->
+  <script>
+    (function() {
+      // 1. Generate full sequence array of 292 frame filenames (ezgif-frame-001.jpg -> ezgif-frame-292.jpg)
+      const TOTAL_FRAMES = 292;
+      const FRAME_FILENAMES = [];
+      const frames = [];
+
+      for (let i = 1; i <= TOTAL_FRAMES; i++) {
+        const padded = String(i).padStart(3, '0');
+        FRAME_FILENAMES.push(`ezgif-frame-${padded}.jpg`);
+        frames.push(null);
+      }
+
+      const canvas = document.getElementById('lifelane-canvas');
+      const heroOverlay = document.getElementById('heroOverlay');
+      const howItWorksOverlay = document.getElementById('howItWorksOverlay');
+      const liveResponseOverlay = document.getElementById('liveResponseOverlay');
+      const finalLandingOverlay = document.getElementById('finalLandingOverlay');
+      const card1 = document.getElementById('hiwCard1');
+      const card2 = document.getElementById('hiwCard2');
+      const card3 = document.getElementById('hiwCard3');
+
+      if (!canvas) return;
+
+      const ctx = canvas.getContext('2d', { alpha: false });
+
+      // Lerp smooth state
+      let currentProgress = 0;
+      let targetProgress = 0;
+
+      // Path Resolver with fallback candidates
+      function loadImage(index, onComplete) {
+        if (frames[index] && frames[index].complete && frames[index].naturalWidth > 0) {
+          if (onComplete) onComplete(frames[index]);
+          return;
+        }
+
+        const filename = FRAME_FILENAMES[index];
+        const candidates = [
+          `ezgif-8c2c6d1679f3f440-jpg/${filename}`,
+          `./ezgif-8c2c6d1679f3f440-jpg/${filename}`,
+          filename,
+          `./${filename}`
+        ];
+
+        let attempt = 0;
+        function tryNext() {
+          if (attempt >= candidates.length) {
+            if (onComplete) onComplete(null);
+            return;
+          }
+          const img = new Image();
+          img.onload = () => {
+            frames[index] = img;
+            if (onComplete) onComplete(img);
+          };
+          img.onerror = () => {
+            attempt++;
+            tryNext();
+          };
+          img.src = candidates[attempt];
+        }
+
+        tryNext();
+      }
+
+      // Preload sequence frames progressively
+      function preloadAllSequenceFrames() {
+        loadImage(0, (img0) => {
+          if (img0) {
+            renderFrame(0);
+          }
+
+          const MAX_CONCURRENT = 8;
+          let queueIndex = 1;
+          let activeCount = 0;
+
+          function processQueue() {
+            while (activeCount < MAX_CONCURRENT && queueIndex < TOTAL_FRAMES) {
+              const idx = queueIndex++;
+              activeCount++;
+              loadImage(idx, () => {
+                activeCount--;
+                const activeFrameIndex = Math.round(currentProgress * (TOTAL_FRAMES - 1));
+                if (activeFrameIndex === idx) {
+                  renderFrame(activeFrameIndex);
+                }
+                processQueue();
+              });
+            }
+          }
+
+          processQueue();
+        });
+      }
+
+      // Resize canvas with DPR scaling
+      function resizeCanvas() {
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+
+        canvas.width = Math.round(width * dpr);
+        canvas.height = Math.round(height * dpr);
+
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+
+        const frameIndex = Math.round(currentProgress * (TOTAL_FRAMES - 1));
+        renderFrame(frameIndex);
+      }
+
+      // Render frame with cover aspect ratio logic
+      function renderFrame(frameIndex) {
+        const safeIndex = Math.max(0, Math.min(TOTAL_FRAMES - 1, frameIndex));
+
+        let img = frames[safeIndex];
+        if (!img || !img.complete || img.naturalWidth === 0) {
+          for (let offset = 1; offset < 50; offset++) {
+            const prev = frames[safeIndex - offset];
+            if (prev && prev.complete && prev.naturalWidth > 0) {
+              img = prev;
+              break;
+            }
+            const next = frames[safeIndex + offset];
+            if (next && next.complete && next.naturalWidth > 0) {
+              img = next;
+              break;
+            }
+          }
+        }
+
+        if (!img || !img.complete || img.naturalWidth === 0) return;
+
+        const cw = canvas.width;
+        const ch = canvas.height;
+        const imgW = img.naturalWidth || 1920;
+        const imgH = img.naturalHeight || 1080;
+
+        const imgAspect = imgW / imgH;
+        const canvasAspect = cw / ch;
+
+        let drawW, drawH, offsetX, offsetY;
+
+        if (canvasAspect > imgAspect) {
+          drawW = cw;
+          drawH = cw / imgAspect;
+          offsetX = 0;
+          offsetY = (ch - drawH) / 2;
+        } else {
+          drawH = ch;
+          drawW = ch * imgAspect;
+          offsetX = (cw - drawW) / 2;
+          offsetY = 0;
+        }
+
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(0, 0, cw, ch);
+        ctx.drawImage(img, offsetX, offsetY, drawW, drawH);
+      }
+
+      // Calculate progress directly from entire document scroll range
+      function updateScrollProgress() {
+        const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+        if (maxScroll <= 0) {
+          targetProgress = 0;
+          return;
+        }
+        const rawProgress = window.scrollY / maxScroll;
+        targetProgress = Math.max(0, Math.min(1, rawProgress));
+      }
+
+      // Smooth Animation Loop using requestAnimationFrame & Lerp
+      function animate() {
+        const ease = 0.15;
+        const diff = targetProgress - currentProgress;
+
+        if (Math.abs(diff) > 0.0001) {
+          currentProgress += diff * ease;
+        } else {
+          currentProgress = targetProgress;
+        }
+
+        const frameIndex = Math.round(currentProgress * (TOTAL_FRAMES - 1));
+        renderFrame(frameIndex);
+
+        // Visibility & Timeline Management:
+        // 1. Hero Overlay: Visible for Frame 001 -> Frame 039 (frameIndex 0..38)
+        if (heroOverlay) {
+          if (frameIndex <= 38) {
+            heroOverlay.classList.remove('hidden');
+          } else {
+            heroOverlay.classList.add('hidden');
+          }
+        }
+
+        // 2. How LifeLane Works Overlay: Visible for Frame 040 -> Frame 112 (frameIndex 39..111)
+        if (howItWorksOverlay) {
+          if (frameIndex >= 39 && frameIndex <= 111) {
+            howItWorksOverlay.classList.remove('hidden');
+
+            // Progressive One-by-One Card Reveals:
+            // Card 01 (Ambulance): Starts appearing at Frame 040 (idx 39), full by Frame 060 (idx 59)
+            if (card1) {
+              const p1 = Math.min(1, Math.max(0, (frameIndex - 39) / 15));
+              card1.style.opacity = p1.toFixed(3);
+              card1.style.transform = `translateY(${(20 * (1 - p1)).toFixed(1)}px)`;
+            }
+
+            // Card 02 (Hospital): Starts appearing at Frame 060 (idx 59), full by Frame 085 (idx 84)
+            if (card2) {
+              if (frameIndex < 59) {
+                card2.style.opacity = '0';
+                card2.style.transform = 'translateY(20px)';
+              } else {
+                const p2 = Math.min(1, Math.max(0, (frameIndex - 59) / 15));
+                card2.style.opacity = p2.toFixed(3);
+                card2.style.transform = `translateY(${(20 * (1 - p2)).toFixed(1)}px)`;
+              }
+            }
+
+            // Card 03 (Traffic): Starts appearing at Frame 085 (idx 84), full by Frame 112 (idx 111)
+            if (card3) {
+              if (frameIndex < 84) {
+                card3.style.opacity = '0';
+                card3.style.transform = 'translateY(20px)';
+              } else {
+                const p3 = Math.min(1, Math.max(0, (frameIndex - 84) / 15));
+                card3.style.opacity = p3.toFixed(3);
+                card3.style.transform = `translateY(${(20 * (1 - p3)).toFixed(1)}px)`;
+              }
+            }
+
+          } else {
+            howItWorksOverlay.classList.add('hidden');
+          }
+        }
+
+        // 3. Live Response Centerpiece Overlay: Visible for Frame 160 -> Frame 180 (frameIndex 159..179)
+        if (liveResponseOverlay) {
+          if (frameIndex >= 159 && frameIndex <= 179) {
+            liveResponseOverlay.classList.remove('hidden');
+            const fadeProgress = Math.min(1, Math.max(0, (frameIndex - 159) / 5));
+            liveResponseOverlay.style.opacity = fadeProgress.toFixed(3);
+          } else {
+            liveResponseOverlay.classList.add('hidden');
+            liveResponseOverlay.style.opacity = '0';
+          }
+        }
+
+        // 4. Final Landing State Overlay: Triggered when progress reaches final ~3.5% (progress >= 0.965) OR frameIndex >= 282
+        if (finalLandingOverlay) {
+          const isFinalLanding = (currentProgress >= 0.965) || (targetProgress >= 0.965) || (frameIndex >= 282);
+          if (isFinalLanding) {
+            finalLandingOverlay.classList.remove('hidden');
+            finalLandingOverlay.style.opacity = '1';
+            finalLandingOverlay.style.visibility = 'visible';
+          } else {
+            finalLandingOverlay.classList.add('hidden');
+            finalLandingOverlay.style.opacity = '0';
+            finalLandingOverlay.style.visibility = 'hidden';
+          }
+        }
+
+        requestAnimationFrame(animate);
+      }
+
+      window.addEventListener('scroll', updateScrollProgress, { passive: true });
+      window.addEventListener('resize', resizeCanvas);
+
+      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      preloadAllSequenceFrames();
+      resizeCanvas();
+      updateScrollProgress();
+
+      if (!prefersReducedMotion) {
+        animate();
+      } else {
+        renderFrame(0);
+      }
+    })();
+  </script>
+</body>
+</html>
