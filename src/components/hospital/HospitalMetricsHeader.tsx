@@ -3,13 +3,11 @@ import React from 'react';
 interface HospitalMetricsHeaderProps {
   incomingCount: number;
   bedsHeldCount: number;
-  activeCorridorsCount: number;
 }
 
 export function HospitalMetricsHeader({
   incomingCount,
   bedsHeldCount,
-  activeCorridorsCount,
 }: HospitalMetricsHeaderProps) {
   return (
     <div className="space-y-4">
@@ -34,8 +32,8 @@ export function HospitalMetricsHeader({
         </div>
       </div>
 
-      {/* 3 Metric Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      {/* 2 Metric Cards Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {/* Card 1: INCOMING */}
         <div className="rounded-[18px] bg-[#070D15]/85 border border-[#F5A524]/25 p-4 flex items-center justify-between backdrop-blur-xl shadow-md">
           <div>
@@ -69,26 +67,6 @@ export function HospitalMetricsHeader({
               {String(bedsHeldCount).padStart(2, '0')}
             </span>
             <span className="text-[10px] font-mono text-[#64748B] uppercase">HELD</span>
-          </div>
-        </div>
-
-        {/* Card 3: ACTIVE CORRIDORS */}
-        <div className="rounded-[18px] bg-[#070D15]/85 border border-white/[0.08] p-4 flex items-center justify-between backdrop-blur-xl shadow-md">
-          <div>
-            <span className="block text-[11px] font-mono font-semibold uppercase tracking-wider text-[#94A3B8]">
-              ACTIVE CORRIDORS
-            </span>
-            <span className="text-xs text-[#64748B] mt-0.5 block">
-              Traffic preempt
-            </span>
-          </div>
-          <div className="flex items-baseline gap-1">
-            <span className="text-3xl sm:text-4xl font-mono font-medium text-slate-500">
-              {String(activeCorridorsCount).padStart(2, '0')}
-            </span>
-            <span className="text-[10px] font-mono text-[#64748B] uppercase">
-              {activeCorridorsCount > 0 ? 'ACTIVE' : 'OFFLINE'}
-            </span>
           </div>
         </div>
       </div>

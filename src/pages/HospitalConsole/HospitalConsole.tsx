@@ -22,8 +22,6 @@ export function HospitalConsole() {
       ? 'rejected'
       : 'pending';
 
-  const activeCorridorsCount = corridor.status === 'active' ? 1 : corridor.status === 'ready' ? 1 : 0;
-
   return (
     <div className="flex-1 flex flex-col min-w-0 relative">
       {/* Subtle ambient lighting layers */}
@@ -36,7 +34,6 @@ export function HospitalConsole() {
         <HospitalMetricsHeader
           incomingCount={requestState === 'pending' ? 1 : 0}
           bedsHeldCount={bedsHeldCount}
-          activeCorridorsCount={activeCorridorsCount}
         />
 
         {/* Main Area: Left/Center Hero Incoming Request + Right Status Cards */}

@@ -48,24 +48,24 @@ export function HospitalRankingCard({
 
       {/* Hospital List */}
       <div className="space-y-3.5">
-        {/* CARD 01: SUNRISE GENERAL HOSPITAL (TOP MATCH) */}
+        {/* CARD 01: SUNRISE GENERAL HOSPITAL */}
         <div
           onClick={() => onSelectHospital('sunrise')}
           className={`rounded-[22px] bg-[#070D15]/90 border p-5 backdrop-blur-xl shadow-lg transition-all duration-200 cursor-pointer ${
             selectedHospitalId === 'sunrise'
-              ? 'border-[#22E06B]/50 shadow-[0_0_30px_rgba(34,224,107,0.12)]'
-              : 'border-white/[0.08] hover:border-white/[0.16]'
+              ? 'border-[#22E06B]/40 shadow-[0_0_20px_rgba(34,224,107,0.08)]'
+              : 'border-white/[0.08] hover:border-[#22E06B]/40 hover:shadow-[0_0_20px_rgba(34,224,107,0.08)]'
           }`}
         >
           {/* Top Row: Rank & Name & Travel Time */}
           <div className="flex items-start justify-between gap-4">
             <div>
-              <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md border border-[#22E06B]/40 bg-[#0E271B] text-[#22E06B] font-mono text-[11px] font-semibold tracking-wider">
-                <span>01 TOP MATCH</span>
+              <div className="flex items-center gap-2">
+                <span className="font-mono text-sm text-[#64748B]">01</span>
+                <h3 className="text-xl font-normal text-white font-sans tracking-tight">
+                  Sunrise General Hospital
+                </h3>
               </div>
-              <h3 className="text-xl sm:text-2xl font-normal text-white mt-2 font-sans tracking-tight">
-                Sunrise General Hospital
-              </h3>
               <p className="text-xs text-slate-300 mt-1 font-normal leading-relaxed">
                 Closest full match, fresh data, strong acceptance record.
               </p>
@@ -118,17 +118,21 @@ export function HospitalRankingCard({
             <button
               onClick={(e) => handleSendRequest(e, 'sunrise', 'Sunrise General Hospital')}
               type="button"
-              className="py-2.5 px-5 rounded-xl bg-gradient-to-r from-[#17CB5C] to-[#22E06B] hover:brightness-105 active:scale-95 text-[#051A0E] font-semibold text-sm flex items-center gap-1.5 shadow-[0_0_20px_rgba(34,224,107,0.35)] transition-all cursor-pointer"
+              className={`py-2.5 px-5 rounded-xl border font-semibold text-xs font-mono transition-all flex items-center gap-1.5 cursor-pointer ${
+                requestedId === 'sunrise'
+                  ? 'bg-[#0E271B] border-[#22E06B]/50 text-[#22E06B]'
+                  : 'border-white/[0.12] bg-white/[0.04] text-white hover:bg-[#22E06B] hover:text-[#051A0E] hover:border-[#22E06B] hover:shadow-[0_0_15px_rgba(34,224,107,0.3)] active:scale-95'
+              }`}
             >
               {requestedId === 'sunrise' ? (
                 <>
-                  <Check className="w-4 h-4 text-[#051A0E]" strokeWidth={2.5} />
+                  <Check className="w-3.5 h-3.5" strokeWidth={2.5} />
                   <span>Request Sent</span>
                 </>
               ) : (
                 <>
                   <span>Send request</span>
-                  <ArrowRight className="w-4 h-4" strokeWidth={2.5} />
+                  <ArrowRight className="w-3.5 h-3.5" strokeWidth={2.5} />
                 </>
               )}
             </button>
@@ -140,8 +144,8 @@ export function HospitalRankingCard({
           onClick={() => onSelectHospital('meridian')}
           className={`rounded-[22px] bg-[#070D15]/90 border p-5 backdrop-blur-xl shadow-lg transition-all duration-200 cursor-pointer ${
             selectedHospitalId === 'meridian'
-              ? 'border-white/[0.25] shadow-lg'
-              : 'border-white/[0.08] hover:border-white/[0.16]'
+              ? 'border-[#22E06B]/40 shadow-[0_0_20px_rgba(34,224,107,0.08)]'
+              : 'border-white/[0.08] hover:border-[#22E06B]/40 hover:shadow-[0_0_20px_rgba(34,224,107,0.08)]'
           }`}
         >
           <div className="flex items-start justify-between gap-4">
@@ -200,9 +204,23 @@ export function HospitalRankingCard({
             <button
               onClick={(e) => handleSendRequest(e, 'meridian', 'Meridian Heart Institute')}
               type="button"
-              className="py-2 px-4 rounded-xl border border-white/[0.1] bg-white/[0.04] hover:bg-white/[0.08] active:scale-95 text-white text-xs font-mono transition-all cursor-pointer"
+              className={`py-2.5 px-5 rounded-xl border font-semibold text-xs font-mono transition-all flex items-center gap-1.5 cursor-pointer ${
+                requestedId === 'meridian'
+                  ? 'bg-[#0E271B] border-[#22E06B]/50 text-[#22E06B]'
+                  : 'border-white/[0.12] bg-white/[0.04] text-white hover:bg-[#22E06B] hover:text-[#051A0E] hover:border-[#22E06B] hover:shadow-[0_0_15px_rgba(34,224,107,0.3)] active:scale-95'
+              }`}
             >
-              {requestedId === 'meridian' ? 'Request Sent' : 'Send request'}
+              {requestedId === 'meridian' ? (
+                <>
+                  <Check className="w-3.5 h-3.5" strokeWidth={2.5} />
+                  <span>Request Sent</span>
+                </>
+              ) : (
+                <>
+                  <span>Send request</span>
+                  <ArrowRight className="w-3.5 h-3.5" strokeWidth={2.5} />
+                </>
+              )}
             </button>
           </div>
         </div>
@@ -212,8 +230,8 @@ export function HospitalRankingCard({
           onClick={() => onSelectHospital('riverside')}
           className={`rounded-[22px] bg-[#070D15]/90 border p-5 backdrop-blur-xl shadow-lg transition-all duration-200 cursor-pointer ${
             selectedHospitalId === 'riverside'
-              ? 'border-[#FF4D4D]/40 shadow-lg'
-              : 'border-white/[0.08] hover:border-white/[0.16]'
+              ? 'border-[#22E06B]/40 shadow-[0_0_20px_rgba(34,224,107,0.08)]'
+              : 'border-white/[0.08] hover:border-[#22E06B]/40 hover:shadow-[0_0_20px_rgba(34,224,107,0.08)]'
           }`}
         >
           <div className="flex items-start justify-between gap-4">
@@ -263,9 +281,23 @@ export function HospitalRankingCard({
             <button
               onClick={(e) => handleSendRequest(e, 'riverside', 'Riverside Medical Centre')}
               type="button"
-              className="py-2 px-4 rounded-xl border border-white/[0.1] bg-white/[0.04] hover:bg-white/[0.08] active:scale-95 text-white text-xs font-mono transition-all cursor-pointer"
+              className={`py-2.5 px-5 rounded-xl border font-semibold text-xs font-mono transition-all flex items-center gap-1.5 cursor-pointer ${
+                requestedId === 'riverside'
+                  ? 'bg-[#0E271B] border-[#22E06B]/50 text-[#22E06B]'
+                  : 'border-white/[0.12] bg-white/[0.04] text-white hover:bg-[#22E06B] hover:text-[#051A0E] hover:border-[#22E06B] hover:shadow-[0_0_15px_rgba(34,224,107,0.3)] active:scale-95'
+              }`}
             >
-              {requestedId === 'riverside' ? 'Request Sent' : 'Send request'}
+              {requestedId === 'riverside' ? (
+                <>
+                  <Check className="w-3.5 h-3.5" strokeWidth={2.5} />
+                  <span>Request Sent</span>
+                </>
+              ) : (
+                <>
+                  <span>Send request</span>
+                  <ArrowRight className="w-3.5 h-3.5" strokeWidth={2.5} />
+                </>
+              )}
             </button>
           </div>
         </div>
@@ -275,8 +307,8 @@ export function HospitalRankingCard({
           onClick={() => onSelectHospital('northgate')}
           className={`rounded-[22px] bg-[#070D15]/90 border p-5 backdrop-blur-xl shadow-lg transition-all duration-200 cursor-pointer ${
             selectedHospitalId === 'northgate'
-              ? 'border-[#F5A524]/40 shadow-lg'
-              : 'border-white/[0.08] hover:border-white/[0.16]'
+              ? 'border-[#22E06B]/40 shadow-[0_0_20px_rgba(34,224,107,0.08)]'
+              : 'border-white/[0.08] hover:border-[#22E06B]/40 hover:shadow-[0_0_20px_rgba(34,224,107,0.08)]'
           }`}
         >
           <div className="flex items-start justify-between gap-4">
@@ -330,9 +362,23 @@ export function HospitalRankingCard({
             <button
               onClick={(e) => handleSendRequest(e, 'northgate', 'Northgate Community Hospital')}
               type="button"
-              className="py-2 px-4 rounded-xl border border-white/[0.1] bg-white/[0.04] hover:bg-white/[0.08] active:scale-95 text-white text-xs font-mono transition-all cursor-pointer"
+              className={`py-2.5 px-5 rounded-xl border font-semibold text-xs font-mono transition-all flex items-center gap-1.5 cursor-pointer ${
+                requestedId === 'northgate'
+                  ? 'bg-[#0E271B] border-[#22E06B]/50 text-[#22E06B]'
+                  : 'border-white/[0.12] bg-white/[0.04] text-white hover:bg-[#22E06B] hover:text-[#051A0E] hover:border-[#22E06B] hover:shadow-[0_0_15px_rgba(34,224,107,0.3)] active:scale-95'
+              }`}
             >
-              {requestedId === 'northgate' ? 'Request Sent' : 'Send request'}
+              {requestedId === 'northgate' ? (
+                <>
+                  <Check className="w-3.5 h-3.5" strokeWidth={2.5} />
+                  <span>Request Sent</span>
+                </>
+              ) : (
+                <>
+                  <span>Send request</span>
+                  <ArrowRight className="w-3.5 h-3.5" strokeWidth={2.5} />
+                </>
+              )}
             </button>
           </div>
         </div>

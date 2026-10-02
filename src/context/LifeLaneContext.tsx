@@ -1,5 +1,18 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { ScreenId } from '../components/navigation/LifeLaneTopNavbar';
+import { VerifiedEmergencyHandover } from '../types/voiceHandover';
+
+export type UserRole = 'ambulance' | 'hospital';
+
+export const ROLE_DEFAULT_SCREENS: Record<UserRole, ScreenId> = {
+  ambulance: 'home',
+  hospital: 'nurse',
+};
+
+export const ROLE_ALLOWED_SCREENS: Record<UserRole, ScreenId[]> = {
+  ambulance: ['home', 'dispatch', 'traffic', 'settings'],
+  hospital: ['nurse', 'hospital', 'settings'],
+};
 
 export interface BedInventory {
   icu: number;
@@ -30,6 +43,7 @@ export interface EmergencyRequestState {
   bedStatus: 'provisional' | 'confirmed' | 'released';
   assignedBay: string;
   countdownSeconds: number;
+  handover?: VerifiedEmergencyHandover;
 }
 
 export interface CorridorState {
@@ -43,7 +57,17 @@ export interface CorridorState {
   crossTrafficHeld: number;
 }
 
+export type ThemeMode = 'dark' | 'light';
+
 export interface LifeLaneContextType {
+  // Theme Architecture
+  theme: ThemeMode;
+  setTheme: (theme: ThemeMode) => void;
+
+  // Role Architecture
+  activeRole: UserRole;
+  setActiveRole: (role: UserRole) => void;
+
   // Navigation
   activeScreen: ScreenId;
   navigateToScreen: (screen: ScreenId) => void;
@@ -59,7 +83,11 @@ export interface LifeLaneContextType {
 
   // Emergency request (Dispatch -> Hospital Console)
   request: EmergencyRequestState;
-  sendEmergencyRequest: (hospitalName?: string) => void;
+  sendEmergencyRequest: (
+    hospitalName?: string,
+    verifiedHandover?: VerifiedEmergencyHandover,
+    shouldNavigate?: boolean
+  ) => void;
   acceptRequest: () => void;
   rejectRequest: () => void;
 
@@ -116,7 +144,55 @@ const INITIAL_CORRIDOR: CorridorState = {
 const LifeLaneContext = createContext<LifeLaneContextType | undefined>(undefined);
 
 export function LifeLaneProvider({ children }: { children: ReactNode }) {
-  const [activeScreen, setActiveScreen] = useState<ScreenId>('home');
+  const [theme, setThemeState] = useState<ThemeMode>(() => {
+    try {
+      const saved = localStorage.getItem('lifelane_theme');
+      if (saved === 'dark' || saved === 'light') {
+        return saved;
+      }
+    } catch {
+      // ignore
+    }
+    return 'dark';
+  });
+
+  const setTheme = (newTheme: ThemeMode) => {
+    setThemeState(newTheme);
+    try {
+      localStorage.setItem('lifelane_theme', newTheme);
+    } catch {
+      // ignore
+    }
+    document.documentElement.setAttribute('data-theme', newTheme);
+  };
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+  }, [theme]);
+
+  const [activeRole, setActiveRoleState] = useState<UserRole>(() => {
+    try {
+      const saved = localStorage.getItem('lifelane_active_role');
+      if (saved === 'ambulance' || saved === 'hospital') {
+        return saved;
+      }
+    } catch {
+      // ignore
+    }
+    return 'ambulance';
+  });
+
+  const [activeScreen, setActiveScreen] = useState<ScreenId>(() => {
+    // Initial screen matches the initial role's default screen
+    try {
+      const savedRole = localStorage.getItem('lifelane_active_role') as UserRole | null;
+      const initialRole = (savedRole === 'ambulance' || savedRole === 'hospital') ? savedRole : 'ambulance';
+      return ROLE_DEFAULT_SCREENS[initialRole];
+    } catch {
+      return 'home';
+    }
+  });
+
   const [beds, setBeds] = useState<BedInventory>(INITIAL_BEDS);
   const [bedsHeldCount, setBedsHeldCount] = useState<number>(1);
   const [updatedMinutesAgo, setUpdatedMinutesAgo] = useState<number>(4);
@@ -128,6 +204,19 @@ export function LifeLaneProvider({ children }: { children: ReactNode }) {
   const navigateToScreen = (screen: ScreenId) => {
     setActiveScreen(screen);
     window.location.hash = screen;
+  };
+
+  const setActiveRole = (role: UserRole) => {
+    setActiveRoleState(role);
+    try {
+      localStorage.setItem('lifelane_active_role', role);
+    } catch {
+      // ignore
+    }
+    // If the current screen is not allowed in the new role, redirect to role default
+    if (!ROLE_ALLOWED_SCREENS[role].includes(activeScreen)) {
+      navigateToScreen(ROLE_DEFAULT_SCREENS[role]);
+    }
   };
 
   const getCurrentTimeFormatted = () => {
@@ -169,18 +258,30 @@ export function LifeLaneProvider({ children }: { children: ReactNode }) {
   };
 
   // Dispatch -> Send request
-  const sendEmergencyRequest = (hospitalName: string = 'Sunrise General Hospital') => {
+  const sendEmergencyRequest = (
+    hospitalName: string = 'Sunrise General Hospital',
+    verifiedHandover?: VerifiedEmergencyHandover,
+    shouldNavigate: boolean = false
+  ) => {
     setRequest((prev) => ({
       ...prev,
       status: 'offered',
       hospital: hospitalName,
       ambulance: 'A-402',
-      patient: 'Cardiac',
+      patient: verifiedHandover?.clinicalHandover.patient || 'Cardiac Patient',
+      vitals: {
+        heartRate: verifiedHandover?.clinicalHandover.vitals.heartRate ?? prev.vitals.heartRate,
+        spO2: verifiedHandover?.clinicalHandover.vitals.spo2 ?? prev.vitals.spO2,
+        bp: verifiedHandover?.clinicalHandover.vitals.bloodPressure ?? prev.vitals.bp,
+        condition: verifiedHandover?.clinicalHandover.assessment ? 'Evaluated' : prev.vitals.condition,
+      },
       bedStatus: 'provisional',
       countdownSeconds: 120,
+      handover: verifiedHandover,
     }));
-    // Seamlessly navigate to Hospital Console for the next step of the demo
-    navigateToScreen('hospital');
+    if (shouldNavigate) {
+      navigateToScreen('hospital');
+    }
   };
 
   // Hospital Console -> Accept & Hold
@@ -254,6 +355,10 @@ export function LifeLaneProvider({ children }: { children: ReactNode }) {
   return (
     <LifeLaneContext.Provider
       value={{
+        theme,
+        setTheme,
+        activeRole,
+        setActiveRole,
         activeScreen,
         navigateToScreen,
         beds,

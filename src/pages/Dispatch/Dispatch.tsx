@@ -1,21 +1,39 @@
 import React, { useState } from 'react';
 import { PatientRequestCard } from '../../components/dispatch/PatientRequestCard';
 import { HospitalRankingCard } from '../../components/dispatch/HospitalRankingCard';
-import { RouteMapCanvas } from '../../components/dispatch/RouteMapCanvas';
+import { VoiceHandoverButton } from '../../components/dispatch/VoiceHandoverButton';
+import { VoiceHandoverModal } from '../../components/dispatch/VoiceHandoverModal';
+import { useLifeLane } from '../../context/LifeLaneContext';
+import { EMERGENCY_HOSPITALS } from '../../components/map/data/emergencyZoneData';
+import type { VerifiedEmergencyHandover } from '../../types/voiceHandover';
 
 interface DispatchProps {
   onSwitchScreen?: (screen: 'nurse' | 'dispatch') => void;
 }
 
 export function Dispatch({ onSwitchScreen }: DispatchProps) {
+  const { sendEmergencyRequest } = useLifeLane();
   const [selectedHospitalId, setSelectedHospitalId] = useState('sunrise');
   const [requestNotice, setRequestNotice] = useState<string | null>(null);
+  const [isVoiceModalOpen, setIsVoiceModalOpen] = useState(false);
+
+  const selectedHospital =
+    EMERGENCY_HOSPITALS.find((h) => h.id === selectedHospitalId) || EMERGENCY_HOSPITALS[0];
 
   const handleRequestSent = (hospitalName: string) => {
     setRequestNotice(`Incident request dispatched to ${hospitalName}`);
     setTimeout(() => {
       setRequestNotice(null);
     }, 4000);
+  };
+
+  const handleVoiceHandoverSend = (verifiedHandover: VerifiedEmergencyHandover) => {
+    // Explicit SEND TO HOSPITAL: Updates LifeLaneContext, stays on Dispatch
+    sendEmergencyRequest(selectedHospital.name, verifiedHandover, false);
+    setRequestNotice(`✓ Structured Voice Handover dispatched to ${selectedHospital.name}`);
+    setTimeout(() => {
+      setRequestNotice(null);
+    }, 5000);
   };
 
   return (
@@ -41,19 +59,26 @@ export function Dispatch({ onSwitchScreen }: DispatchProps) {
             </p>
           </div>
 
-          {/* Right Header Status Chips */}
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/[0.08] bg-[#070D15]/80 text-xs font-mono text-slate-300">
-              <span className="text-[#64748B]">STATUS</span>
-              <span className="text-[#F5A524] font-semibold">Triage Active</span>
-            </div>
+          {/* Right Header Status Chips & Voice Handover Trigger */}
+          <div className="flex flex-wrap items-center gap-3">
+            {/* Voice Handover Primary Trigger */}
+            <VoiceHandoverButton onClick={() => setIsVoiceModalOpen(true)} />
 
+            {/* ZONE Sector 4 */}
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-white/[0.08] bg-[#070D15]/80 text-xs font-mono text-slate-300">
               <span className="text-[#64748B]">ZONE</span>
               <span className="text-white font-medium">Sector 4</span>
             </div>
           </div>
         </div>
+
+        {/* Voice Handover Modal */}
+        <VoiceHandoverModal
+          isOpen={isVoiceModalOpen}
+          onClose={() => setIsVoiceModalOpen(false)}
+          destinationHospital={selectedHospital.name}
+          onSendHandover={handleVoiceHandoverSend}
+        />
 
         {/* Global Feedback Banner if request dispatched */}
         {requestNotice && (
@@ -64,23 +89,19 @@ export function Dispatch({ onSwitchScreen }: DispatchProps) {
         )}
 
         {/* Main 2-Column Responsive Workspace Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
-          {/* Left Column (5 cols on lg, 6 cols on xl): Patient Card + Hospital Rankings */}
-          <div className="lg:col-span-6 xl:col-span-5 flex flex-col gap-5">
-            {/* Top Patient Request Card */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          {/* Left Column (5 cols): Patient Card */}
+          <div className="lg:col-span-5 flex flex-col">
             <PatientRequestCard />
+          </div>
 
-            {/* Hospital Ranking Cards List */}
+          {/* Right Column (7 cols): Hospital Ranking Cards */}
+          <div className="lg:col-span-7 flex flex-col">
             <HospitalRankingCard
               selectedHospitalId={selectedHospitalId}
               onSelectHospital={setSelectedHospitalId}
               onRequestSent={handleRequestSent}
             />
-          </div>
-
-          {/* Right Column (7 cols on lg, 7 cols on xl): Interactive Simulated City Map Canvas */}
-          <div className="lg:col-span-6 xl:col-span-7 flex flex-col min-h-[520px]">
-            <RouteMapCanvas selectedHospitalId={selectedHospitalId} />
           </div>
         </div>
       </div>

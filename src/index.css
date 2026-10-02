@@ -4,11 +4,115 @@
   --font-serif: "Instrument Serif", "Fraunces", Georgia, serif;
   --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-mono: "JetBrains Mono", monospace;
+}
 
-  --color-bg-base: #05080C;
-  --color-emerald-accent: #22E06B;
-  --color-amber-accent: #F5A524;
-  --color-red-accent: #FF4D4D;
+:root {
+  /* Default: Dark Mode */
+  --bg-app: #05080C;
+  --bg-surface: #070D15;
+  --bg-surface-elevated: #09101C;
+  --bg-card: rgba(7, 13, 21, 0.88);
+  --bg-card-inner: #09121D;
+  --bg-sidebar: rgba(9, 13, 26, 0.90);
+  --bg-navbar: rgba(11, 15, 28, 0.85);
+  --bg-hover: rgba(255, 255, 255, 0.04);
+  --bg-active-pill: #181D33;
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-medium: rgba(255, 255, 255, 0.12);
+  --border-strong: rgba(255, 255, 255, 0.2);
+  --border-hover: rgba(255, 255, 255, 0.16);
+
+  --text-primary: #FFFFFF;
+  --text-secondary: #E2E8F0;
+  --text-muted: #94A3B8;
+  --text-dim: #64748B;
+
+  /* Map Vector Tokens */
+  --map-bg: #050A10;
+  --map-parcel: #09131F;
+  --map-parcel-border: #0E1E2E;
+  --map-road: #18324C;
+  --map-road-secondary: #122438;
+  --map-water: #081422;
+  --map-overlay-bg: rgba(7, 19, 29, 0.90);
+
+  /* Semantic Accents */
+  --emerald-accent: #22E06B;
+  --emerald-bg: #0E271B;
+  --emerald-border: rgba(34, 224, 107, 0.35);
+
+  --amber-accent: #F5A524;
+  --amber-bg: #221609;
+  --amber-border: rgba(245, 165, 36, 0.35);
+
+  --sky-accent: #38BDF8;
+  --sky-bg: #0A1E2F;
+  --sky-border: rgba(56, 189, 248, 0.35);
+
+  --purple-accent: #C084FC;
+  --purple-bg: #221235;
+  --purple-border: rgba(192, 132, 252, 0.35);
+
+  --red-accent: #FF4D4D;
+  --red-bg: #270E14;
+  --red-border: rgba(255, 77, 77, 0.35);
+
+  --ambient-opacity: 0.025;
+}
+
+[data-theme="light"] {
+  color-scheme: light;
+
+  --bg-app: #F4F6F9;
+  --bg-surface: #FFFFFF;
+  --bg-surface-elevated: #F8FAFC;
+  --bg-card: rgba(255, 255, 255, 0.94);
+  --bg-card-inner: #F1F5F9;
+  --bg-sidebar: rgba(255, 255, 255, 0.94);
+  --bg-navbar: rgba(255, 255, 255, 0.92);
+  --bg-hover: rgba(15, 23, 42, 0.04);
+  --bg-active-pill: #E2E8F0;
+  --border-subtle: rgba(15, 23, 42, 0.09);
+  --border-medium: rgba(15, 23, 42, 0.14);
+  --border-strong: rgba(15, 23, 42, 0.22);
+  --border-hover: rgba(15, 23, 42, 0.18);
+
+  --text-primary: #0F172A;
+  --text-secondary: #334155;
+  --text-muted: #64748B;
+  --text-dim: #94A3B8;
+
+  /* Map Vector Tokens */
+  --map-bg: #E2E8F0;
+  --map-parcel: #FFFFFF;
+  --map-parcel-border: #CBD5E1;
+  --map-road: #94A3B8;
+  --map-road-secondary: #CBD5E1;
+  --map-water: #BAE6FD;
+  --map-overlay-bg: rgba(255, 255, 255, 0.94);
+
+  /* Semantic Accents - Tuned for crisp contrast on light backgrounds */
+  --emerald-accent: #15803D;
+  --emerald-bg: #ECFDF5;
+  --emerald-border: rgba(21, 128, 61, 0.35);
+
+  --amber-accent: #D97706;
+  --amber-bg: #FFFBEB;
+  --amber-border: rgba(217, 119, 6, 0.35);
+
+  --sky-accent: #0284C7;
+  --sky-bg: #F0F9FF;
+  --sky-border: rgba(2, 132, 199, 0.35);
+
+  --purple-accent: #7E22CE;
+  --purple-bg: #FAF5FF;
+  --purple-border: rgba(126, 34, 206, 0.35);
+
+  --red-accent: #DC2626;
+  --red-bg: #FEF2F2;
+  --red-border: rgba(220, 38, 38, 0.35);
+
+  --ambient-opacity: 0.01;
 }
 
 .font-serif {
@@ -25,23 +129,107 @@
 
 body {
   font-family: var(--font-sans);
-  background-color: #05080C;
-  color: #E2E8F0;
+  background-color: var(--bg-app);
+  color: var(--text-secondary);
   min-height: 100vh;
+  transition: background-color 0.15s ease, color 0.15s ease;
 }
 
 /* Glass panel baseline */
 .glass-panel {
-  background: rgba(10, 16, 26, 0.72);
+  background: var(--bg-card);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 16px 40px -12px rgba(0, 0, 0, 0.6), inset 0 1px 1px 0 rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border-subtle);
+  box-shadow: 0 16px 40px -12px rgba(0, 0, 0, 0.25), inset 0 1px 1px 0 rgba(255, 255, 255, 0.06);
 }
 
 .glass-pill {
-  background: rgba(15, 23, 42, 0.65);
+  background: var(--bg-surface-elevated);
   backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border-subtle);
 }
+
+/* LIGHT THEME ADAPTATION OVERRIDES */
+[data-theme="light"] [class*="bg-[#05080C]"],
+[data-theme="light"] [class*="bg-[#050B12]"] {
+  background-color: var(--bg-app) !important;
+}
+
+[data-theme="light"] [class*="bg-[#070D15]"],
+[data-theme="light"] [class*="bg-[#09101C]"],
+[data-theme="light"] [class*="bg-[#070D16]"],
+[data-theme="light"] [class*="bg-[#09101A]"],
+[data-theme="light"] [class*="bg-[#090D1A]"],
+[data-theme="light"] [class*="bg-[#070C14]"],
+[data-theme="light"] [class*="bg-[#0B0F1C]"] {
+  background-color: var(--bg-surface) !important;
+}
+
+[data-theme="light"] [class*="bg-[#09121D]"],
+[data-theme="light"] [class*="bg-[#070B16]"],
+[data-theme="light"] [class*="bg-[#09121E]"],
+[data-theme="light"] [class*="bg-[#07101B]"],
+[data-theme="light"] [class*="bg-[#07141D]"],
+[data-theme="light"] [class*="bg-[#09111D]"],
+[data-theme="light"] [class*="bg-[#0A1A26]"],
+[data-theme="light"] [class*="bg-[#0E1528]"] {
+  background-color: var(--bg-card-inner) !important;
+}
+
+[data-theme="light"] [class*="bg-[#181D33]"] {
+  background-color: var(--bg-active-pill) !important;
+  color: var(--text-primary) !important;
+}
+
+[data-theme="light"] [class*="bg-[#050A10]"],
+[data-theme="light"] [class*="bg-[#080E17]"] {
+  background-color: var(--map-bg) !important;
+}
+
+[data-theme="light"] [class*="border-white/"] {
+  border-color: var(--border-subtle) !important;
+}
+
+[data-theme="light"] [class*="text-white"] {
+  color: var(--text-primary) !important;
+}
+
+[data-theme="light"] [class*="text-slate-100"],
+[data-theme="light"] [class*="text-slate-200"],
+[data-theme="light"] [class*="text-slate-300"] {
+  color: var(--text-secondary) !important;
+}
+
+[data-theme="light"] [class*="text-slate-400"],
+[data-theme="light"] [class*="text-[#94A3B8]"] {
+  color: var(--text-muted) !important;
+}
+
+[data-theme="light"] [class*="text-[#64748B]"] {
+  color: var(--text-dim) !important;
+}
+
+/* Specific chromatic cards in Settings & About for light theme */
+[data-theme="light"] [class*="from-[#091E13]"] {
+  background-image: linear-gradient(to bottom, #F0FDF4, #FFFFFF) !important;
+  border-color: rgba(22, 163, 74, 0.3) !important;
+}
+[data-theme="light"] [class*="from-[#181108]"] {
+  background-image: linear-gradient(to bottom, #FFFBEB, #FFFFFF) !important;
+  border-color: rgba(217, 119, 6, 0.3) !important;
+}
+[data-theme="light"] [class*="from-[#091524]"] {
+  background-image: linear-gradient(to bottom, #F0F9FF, #FFFFFF) !important;
+  border-color: rgba(2, 132, 199, 0.3) !important;
+}
+[data-theme="light"] [class*="from-[#150D24]"] {
+  background-image: linear-gradient(to bottom, #FAF5FF, #FFFFFF) !important;
+  border-color: rgba(126, 34, 206, 0.3) !important;
+}
+[data-theme="light"] [class*="from-[#180A0E]"] {
+  background-image: linear-gradient(to right, #FEF2F2, #FFF5F5, #FFFFFF) !important;
+  border-color: rgba(220, 38, 38, 0.3) !important;
+}
+
 

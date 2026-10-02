@@ -2,7 +2,6 @@ import React from 'react';
 import { HomeHeader } from '../../components/home/HomeHeader';
 import { DynamicCorridorMap } from '../../components/home/DynamicCorridorMap';
 import { ActiveOperationsPanel } from '../../components/home/ActiveOperationsPanel';
-import { NetworkHealthCard } from '../../components/home/NetworkHealthCard';
 import { RecentActivityCard } from '../../components/home/RecentActivityCard';
 
 interface HomeOverviewProps {
@@ -18,7 +17,7 @@ export function HomeOverview({ onNavigateToScreen }: HomeOverviewProps) {
 
       {/* Page Content */}
       <div className="p-6 lg:p-8 max-w-[1520px] w-full mx-auto space-y-6 flex-1 flex flex-col">
-        {/* Header & 4 Metrics */}
+        {/* Header & Destination Hospital Inventory */}
         <HomeHeader />
 
         {/* Center Main Section: Dynamic Corridor Map + Active Operations */}
@@ -36,15 +35,9 @@ export function HomeOverview({ onNavigateToScreen }: HomeOverviewProps) {
           </div>
         </div>
 
-        {/* Bottom Row: Network Health (42%) + Recent Activity (58%) */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch pb-8">
-          <div className="lg:col-span-5 flex flex-col">
-            <NetworkHealthCard />
-          </div>
-
-          <div className="lg:col-span-7 flex flex-col">
-            <RecentActivityCard />
-          </div>
+        {/* Bottom Section: Recent Activity (Unit A-402 Log) */}
+        <div className="pb-8">
+          <RecentActivityCard />
         </div>
       </div>
     </div>

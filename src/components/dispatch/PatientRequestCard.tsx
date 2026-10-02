@@ -1,11 +1,15 @@
 import React, { useState } from 'react';
-import { Heart, MapPin, Plus, Check } from 'lucide-react';
+import { Heart, MapPin, Plus, Check, Mic } from 'lucide-react';
+import { useLifeLane } from '../../context/LifeLaneContext';
 
 interface PatientRequestCardProps {
   onAddBedType?: () => void;
 }
 
 export function PatientRequestCard({ onAddBedType }: PatientRequestCardProps) {
+  const { request } = useLifeLane();
+  const handover = request.handover?.clinicalHandover;
+
   const [bedsRequired, setBedsRequired] = useState([
     { id: 'icu', name: 'ICU', suggested: true },
     { id: 'cardiac', name: 'Cardiac', suggested: true },
@@ -22,18 +26,29 @@ export function PatientRequestCard({ onAddBedType }: PatientRequestCardProps) {
     );
   };
 
+  const currentHeartRate = handover?.vitals.heartRate ?? request.vitals.heartRate;
+  const currentSpO2 = handover?.vitals.spo2 ?? request.vitals.spO2;
+
   return (
     <div className="rounded-[22px] bg-[#070D15]/85 border border-white/[0.08] p-5 flex flex-col justify-between backdrop-blur-xl shadow-lg h-full">
       <div className="space-y-5">
         {/* Header: PATIENT REQUEST + Status badges */}
         <div className="flex items-center justify-between pb-3.5 border-b border-white/[0.06]">
-          <span className="text-[11px] font-mono font-semibold uppercase tracking-[0.14em] text-[#94A3B8]">
-            PATIENT REQUEST
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] font-mono font-semibold uppercase tracking-[0.14em] text-[#94A3B8]">
+              PATIENT REQUEST
+            </span>
+            {handover && (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border border-emerald-400/40 bg-emerald-950/40 text-emerald-300 text-[9px] font-mono">
+                <Mic className="w-2.5 h-2.5" />
+                <span>VOICE VERIFIED</span>
+              </span>
+            )}
+          </div>
 
           <div className="flex items-center gap-1.5">
             <span className="px-2 py-0.5 rounded border border-[#22E06B]/30 bg-[#0E2419] text-[#22E06B] text-[10px] font-mono font-medium">
-              CARDIAC
+              {handover?.situation ? 'EVALUATED' : 'CARDIAC'}
             </span>
             <span className="px-2 py-0.5 rounded border border-[#FF4D4D]/30 bg-[#281116] text-[#FF4D4D] text-[10px] font-mono font-medium flex items-center gap-1">
               <span className="w-1 h-1 rounded-full bg-[#FF4D4D]" />
@@ -64,8 +79,12 @@ export function PatientRequestCard({ onAddBedType }: PatientRequestCardProps) {
                 <Heart className="w-3.5 h-3.5 text-[#FF4D4D]" strokeWidth={2.2} />
               </div>
               <div className="mt-2 flex items-baseline gap-1.5">
-                <span className="text-3xl font-mono font-normal text-white">112</span>
-                <span className="text-xs font-mono text-[#64748B]">bpm</span>
+                <span className="text-3xl font-mono font-normal text-white">
+                  {currentHeartRate ?? '—'}
+                </span>
+                <span className="text-xs font-mono text-[#64748B]">
+                  {currentHeartRate !== null ? 'bpm' : 'Unreported'}
+                </span>
               </div>
             </div>
 
@@ -76,12 +95,16 @@ export function PatientRequestCard({ onAddBedType }: PatientRequestCardProps) {
                   SPO2
                 </span>
                 <span className="px-1.5 py-0.2 rounded bg-[#F5A524]/15 border border-[#F5A524]/30 text-[#F5A524] text-[9px] font-mono font-semibold">
-                  LOW
+                  {currentSpO2 && currentSpO2 < 95 ? 'LOW' : 'NORMAL'}
                 </span>
               </div>
               <div className="mt-2 flex items-baseline gap-1.5">
-                <span className="text-3xl font-mono font-normal text-white">92</span>
-                <span className="text-xs font-mono text-[#64748B]">%</span>
+                <span className="text-3xl font-mono font-normal text-white">
+                  {currentSpO2 ?? '—'}
+                </span>
+                <span className="text-xs font-mono text-[#64748B]">
+                  {currentSpO2 !== null ? '%' : 'Unreported'}
+                </span>
               </div>
             </div>
           </div>

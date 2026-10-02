@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Heart, Activity, Check, X, Clock, Plus, Gauge, Ambulance } from 'lucide-react';
+import { useLifeLane } from '../../context/LifeLaneContext';
+import { ClinicalHandoverSummary } from './ClinicalHandoverSummary';
 
 interface IncomingRequestHeroProps {
   requestState: 'pending' | 'accepted' | 'rejected';
@@ -12,6 +14,9 @@ export function IncomingRequestHero({
   onAccept,
   onReject,
 }: IncomingRequestHeroProps) {
+  const { request } = useLifeLane();
+  const handover = request.handover?.clinicalHandover;
+
   // Timer countdown initialized to 102 seconds (01:42)
   const [secondsRemaining, setSecondsRemaining] = useState(102);
 
@@ -33,6 +38,9 @@ export function IncomingRequestHero({
   const circumference = 2 * Math.PI * 54;
   const progressRatio = secondsRemaining / 102;
   const strokeDashoffset = circumference * (1 - progressRatio);
+
+  const hrValue = handover ? (handover.vitals.heartRate ?? '—') : (request.vitals?.heartRate ?? 112);
+  const spo2Value = handover ? (handover.vitals.spo2 ?? '—') : (request.vitals?.spO2 ?? 92);
 
   return (
     <div
@@ -59,12 +67,18 @@ export function IncomingRequestHero({
               CRITICAL
             </span>
             <span className="px-2 py-0.5 rounded border border-[#38BDF8]/35 bg-[#0B1E2E] text-[#38BDF8] text-[10px] font-mono font-medium">
-              CARDIAC
+              {handover?.situation ? 'EVALUATED' : 'CARDIAC'}
             </span>
+            {request.handover && (
+              <span className="px-2 py-0.5 rounded-full border border-emerald-400/40 bg-emerald-950/40 text-emerald-300 text-[10px] font-mono font-medium flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                VOICE VERIFIED
+              </span>
+            )}
           </div>
 
           <span className="px-2.5 py-0.5 rounded-md border border-white/[0.1] bg-white/[0.03] text-xs font-mono text-[#94A3B8]">
-            OFFER <strong className="text-white">#A402-01</strong>
+            OFFER <strong className="text-white">#{request.handover?.systemMeta.ambulanceId || 'A402'}-01</strong>
           </span>
         </div>
 
@@ -76,7 +90,7 @@ export function IncomingRequestHero({
             </div>
             <div>
               <h3 className="text-base font-semibold text-white font-sans tracking-tight">
-                Ambulance A-402
+                Ambulance {request.handover?.systemMeta.ambulanceId || 'A-402'}
               </h3>
               <p className="text-xs text-slate-400 font-normal">
                 Paramedic Crew Alpha-9 · Unit 14
@@ -196,15 +210,21 @@ export function IncomingRequestHero({
                 <Heart className="w-3.5 h-3.5" />
                 <span>HEART RATE</span>
               </div>
-              <span className="text-[10px] font-mono text-slate-400">BPM</span>
+              <span className="text-[10px] font-mono text-slate-400">
+                {hrValue !== '—' ? 'BPM' : 'Not stated'}
+              </span>
             </div>
 
             <div className="flex items-end justify-between mt-3">
               <span className="text-4xl font-mono font-normal text-white leading-none">
-                112
+                {hrValue}
               </span>
               <span className="px-2 py-0.5 rounded bg-[#0E253A] border border-[#38BDF8]/30 text-[#38BDF8] text-[10px] font-mono">
-                Tachy
+                {hrValue === '—'
+                  ? 'Unreported'
+                  : typeof hrValue === 'number' && hrValue > 100
+                  ? 'Tachy'
+                  : 'Normal'}
               </span>
             </div>
           </div>
@@ -216,19 +236,32 @@ export function IncomingRequestHero({
                 <Activity className="w-3.5 h-3.5" />
                 <span>SPO2</span>
               </div>
-              <span className="text-[10px] font-mono text-slate-400">Pulse Oxygen</span>
+              <span className="text-[10px] font-mono text-slate-400">
+                {spo2Value !== '—' ? 'Pulse Oxygen' : 'Not stated'}
+              </span>
             </div>
 
             <div className="flex items-end justify-between mt-3">
               <span className="text-4xl font-mono font-normal text-[#F5A524] leading-none">
-                92%
+                {spo2Value !== '—' ? `${spo2Value}%` : '—'}
               </span>
               <span className="px-2 py-0.5 rounded bg-[#2D1D09] border border-[#F5A524]/30 text-[#F5A524] text-[10px] font-mono">
-                Borderline
+                {spo2Value === '—'
+                  ? 'Unreported'
+                  : typeof spo2Value === 'number' && spo2Value < 95
+                  ? 'Borderline'
+                  : 'Normal'}
               </span>
             </div>
           </div>
         </div>
+
+        {/* Clinical Voice Handover Summary (if verified handover exists) */}
+        {request.handover && (
+          <div className="pt-1">
+            <ClinicalHandoverSummary handover={request.handover} />
+          </div>
+        )}
 
         {/* BED NEED Section */}
         <div>

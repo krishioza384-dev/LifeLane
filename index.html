@@ -12,8 +12,17 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <script>
+      (function() {
+        try {
+          var saved = localStorage.getItem('lifelane_theme');
+          var theme = (saved === 'light' || saved === 'dark') ? saved : 'dark';
+          document.documentElement.setAttribute('data-theme', theme);
+        } catch (e) {}
+      })();
+    </script>
   </head>
-  <body class="bg-[#05080C] text-slate-100 antialiased min-h-screen selection:bg-emerald-500/30 selection:text-emerald-200">
+  <body class="antialiased min-h-screen selection:bg-emerald-500/30 selection:text-emerald-200">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
