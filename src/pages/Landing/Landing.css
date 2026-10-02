@@ -1,0 +1,1169 @@
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+.lifelane-landing-root {
+  --font-serif: 'Instrument Serif', Georgia, serif;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --gold-accent: #FFB800;
+  --gold-hover: #E5A400;
+  --emerald-accent: #22E06B;
+  --glass-bg: rgba(8, 14, 22, 0.65);
+  --glass-border: rgba(255, 184, 0, 0.18);
+  --text-main: #FFFFFF;
+  --text-muted: #94A3B8;
+
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  background-color: #000000;
+  color: var(--text-main);
+  font-family: var(--font-sans);
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+.lifelane-landing-root *,
+.lifelane-landing-root *::before,
+.lifelane-landing-root *::after {
+  box-sizing: border-box;
+}
+
+/* 1. Fixed full-screen background viewport for 292-frame canvas */
+.lifelane-landing-root #lifelane-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: block;
+  pointer-events: none;
+  z-index: 1;
+  background-color: #000000;
+}
+
+/* 2. Invisible scroll space element providing document scroll range */
+.lifelane-landing-root .lifelane-scroll-space {
+  height: 1000vh;
+  width: 100%;
+  position: relative;
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* ---------------------------------------------------- */
+/* 3. HERO UI OVERLAY LAYER (Frame 001 -> Frame 039)     */
+/* ---------------------------------------------------- */
+.lifelane-landing-root .hero-overlay-layer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 10;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 3rem 3rem 2.25rem 3rem;
+  background: linear-gradient(
+    90deg,
+    rgba(3, 8, 15, 0.85) 0%,
+    rgba(3, 8, 15, 0.5) 45%,
+    rgba(3, 8, 15, 0) 85%
+  );
+  transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+
+.lifelane-landing-root .hero-overlay-layer.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.lifelane-landing-root .hero-content-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 3rem;
+  align-items: center;
+  margin-top: 1rem;
+}
+
+.lifelane-landing-root .hero-left {
+  pointer-events: auto;
+  max-width: 680px;
+}
+
+.lifelane-landing-root .eyebrow-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--gold-accent);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  background: rgba(255, 184, 0, 0.12);
+  border: 1px solid rgba(255, 184, 0, 0.3);
+  padding: 0.35rem 0.85rem;
+  border-radius: 50px;
+  margin-bottom: 1.25rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.lifelane-landing-root .pulse-dot {
+  width: 6px;
+  height: 6px;
+  background-color: var(--gold-accent);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--gold-accent);
+}
+
+.lifelane-landing-root .hero-headline {
+  font-family: var(--font-serif);
+  font-size: clamp(3rem, 5.2vw, 4.85rem);
+  line-height: 1.05;
+  font-weight: 400;
+  color: var(--text-main);
+  margin-bottom: 1.25rem;
+  letter-spacing: -0.01em;
+  text-shadow: 0 4px 24px rgba(0, 0, 0, 0.9), 0 1px 4px rgba(0, 0, 0, 0.8);
+}
+
+.lifelane-landing-root .accent-text {
+  color: var(--gold-accent);
+  font-style: italic;
+}
+
+.lifelane-landing-root .hero-description {
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: #E2E8F0;
+  margin-bottom: 2rem;
+  max-width: 580px;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.9), 0 1px 3px rgba(0, 0, 0, 0.8);
+}
+
+.lifelane-landing-root .btn-cta-gold {
+  pointer-events: auto;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #05080C;
+  background: var(--gold-accent);
+  padding: 0.85rem 2.25rem;
+  border-radius: 50px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  letter-spacing: 0.04em;
+  box-shadow: 0 8px 24px rgba(255, 184, 0, 0.35);
+  transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+
+.lifelane-landing-root .btn-cta-gold:hover {
+  background: var(--gold-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(255, 184, 0, 0.5);
+}
+
+.lifelane-landing-root .hero-right {
+  pointer-events: auto;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.lifelane-landing-root .glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  padding: 1.5rem 1.75rem;
+  width: 100%;
+  max-width: 360px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+}
+
+.lifelane-landing-root .hospital-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.25rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.lifelane-landing-root .hospital-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.lifelane-landing-root .hospital-icon {
+  width: 36px;
+  height: 36px;
+  background: rgba(255, 184, 0, 0.15);
+  border: 1px solid rgba(255, 184, 0, 0.3);
+  color: var(--gold-accent);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lifelane-landing-root .hospital-name {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.lifelane-landing-root .freshness-tag {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-top: 0.15rem;
+}
+
+.lifelane-landing-root .status-badge {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  padding: 0.25rem 0.55rem;
+  border-radius: 50px;
+  font-weight: 600;
+}
+
+.lifelane-landing-root .badge-green {
+  background: rgba(34, 224, 107, 0.15);
+  color: var(--emerald-accent);
+  border: 1px solid rgba(34, 224, 107, 0.3);
+}
+
+.lifelane-landing-root .resource-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+}
+
+.lifelane-landing-root .resource-item {
+  background: rgba(5, 8, 12, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  padding: 0.75rem 0.5rem;
+  text-align: center;
+}
+
+.lifelane-landing-root .resource-label {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-bottom: 0.25rem;
+  font-weight: 500;
+}
+
+.lifelane-landing-root .resource-val {
+  font-family: var(--font-mono);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--gold-accent);
+}
+
+.lifelane-landing-root .bottom-features-strip {
+  pointer-events: auto;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.25rem;
+  margin-top: 1.5rem;
+}
+
+.lifelane-landing-root .feature-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  padding: 1.15rem 1.25rem;
+  transition: transform 0.25s ease, border-color 0.25s ease;
+}
+
+.lifelane-landing-root .feature-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(255, 184, 0, 0.4);
+}
+
+.lifelane-landing-root .feature-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.lifelane-landing-root .feature-icon {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--gold-accent);
+  width: 26px;
+  height: 26px;
+  background: rgba(255, 184, 0, 0.12);
+  border: 1px solid rgba(255, 184, 0, 0.25);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lifelane-landing-root .feature-arrow {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  transition: color 0.2s, transform 0.2s;
+}
+
+.lifelane-landing-root .feature-card:hover .feature-arrow {
+  color: var(--gold-accent);
+  transform: translateX(3px);
+}
+
+.lifelane-landing-root .feature-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-main);
+  margin-bottom: 0.35rem;
+}
+
+.lifelane-landing-root .feature-desc {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+
+/* ---------------------------------------------------- */
+/* 4. HOW LIFELANE WORKS OVERLAY (Frame 040 -> Frame 112) */
+/* ---------------------------------------------------- */
+.lifelane-landing-root .how-it-works-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 10;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem 3rem 2.5rem 3rem;
+  background: radial-gradient(circle at center, rgba(3, 8, 15, 0.40) 0%, rgba(3, 8, 15, 0.15) 70%, rgba(3, 8, 15, 0) 100%);
+  transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+
+.lifelane-landing-root .how-it-works-overlay.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.lifelane-landing-root .hiw-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  text-align: center;
+}
+
+.lifelane-landing-root .hiw-header {
+  margin-top: 1rem;
+  max-width: 780px;
+  padding: 2.25rem 2.75rem;
+  border-radius: 30px;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(3, 8, 15, 0.88) 0%,
+    rgba(3, 8, 15, 0.68) 45%,
+    rgba(3, 8, 15, 0.25) 75%,
+    transparent 100%
+  );
+  pointer-events: auto;
+}
+
+.lifelane-landing-root .hiw-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--gold-accent);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin-bottom: 0.75rem;
+  text-shadow: 0 0 10px rgba(255, 184, 0, 0.4), 0 2px 6px rgba(0, 0, 0, 0.95);
+}
+
+.lifelane-landing-root .hiw-line {
+  width: 24px;
+  height: 1px;
+  background: var(--gold-accent);
+  opacity: 0.75;
+  box-shadow: 0 0 6px var(--gold-accent);
+}
+
+.lifelane-landing-root .hiw-heading {
+  font-family: var(--font-serif);
+  font-size: clamp(2.4rem, 4vw, 3.6rem);
+  line-height: 1.1;
+  font-weight: 400;
+  color: #FFFFFF;
+  margin-bottom: 0.85rem;
+  text-shadow: 0 3px 14px rgba(0, 0, 0, 0.95), 0 1px 4px rgba(0, 0, 0, 0.9);
+}
+
+.lifelane-landing-root .hiw-description {
+  font-size: 0.98rem;
+  line-height: 1.6;
+  color: #F1F5F9;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.95), 0 1px 3px rgba(0, 0, 0, 0.9);
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.lifelane-landing-root .hiw-cards-wrapper {
+  pointer-events: auto;
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.75rem;
+  margin-bottom: 1rem;
+}
+
+.lifelane-landing-root .hiw-card {
+  position: relative;
+  z-index: 2;
+  background: rgba(4, 9, 17, 0.25);
+  border: 1px solid rgba(255, 193, 7, 0.32);
+  border-radius: 18px;
+  padding: 1.25rem 1.35rem;
+  text-align: left;
+  min-height: 190px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+  transition: transform 0.3s ease, opacity 0.3s ease, border-color 0.25s ease, background 0.25s ease;
+}
+
+.lifelane-landing-root .hiw-card:hover {
+  border-color: rgba(255, 184, 0, 0.60);
+  background: rgba(4, 9, 17, 0.38);
+}
+
+.lifelane-landing-root .hiw-card.card-featured {
+  border-color: rgba(255, 193, 7, 0.45);
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.30), 0 0 15px rgba(255, 184, 0, 0.12);
+  background: rgba(6, 13, 24, 0.28);
+}
+
+.lifelane-landing-root .card-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.lifelane-landing-root .card-num-badge {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #05080C;
+  background: var(--gold-accent);
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 10px rgba(255, 184, 0, 0.4);
+}
+
+.lifelane-landing-root .card-icon-box {
+  width: 34px;
+  height: 34px;
+  background: rgba(15, 20, 30, 0.65);
+  border: 1px solid rgba(255, 184, 0, 0.35);
+  color: var(--gold-accent);
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lifelane-landing-root .hiw-card-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: #FFFFFF;
+  margin-bottom: 0.85rem;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.95);
+}
+
+.lifelane-landing-root .hiw-feature-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  padding-top: 0.75rem;
+}
+
+.lifelane-landing-root .hiw-feature-list li {
+  font-size: 0.84rem;
+  color: #F8FAFC;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.95);
+}
+
+.lifelane-landing-root .check-icon {
+  color: var(--emerald-accent);
+  font-weight: 700;
+  font-size: 0.85rem;
+  text-shadow: 0 0 8px rgba(34, 224, 107, 0.4), 0 2px 4px rgba(0, 0, 0, 0.95);
+}
+
+/* ---------------------------------------------------- */
+/* 5. LIVE RESPONSE CENTERPIECE (Frame 160 -> Frame 180) */
+/* ---------------------------------------------------- */
+.lifelane-landing-root .live-response-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 10;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 3rem;
+  background: radial-gradient(ellipse at 70% 55%, rgba(3, 8, 15, 0.20) 0%, rgba(3, 8, 15, 0.65) 50%, rgba(3, 8, 15, 0.92) 100%);
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.lifelane-landing-root .live-response-overlay.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.lifelane-landing-root .lrc-container {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  height: 100%;
+  max-height: 860px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.lifelane-landing-root .lrc-header {
+  pointer-events: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding: 1.25rem 2rem;
+  border-radius: 20px;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(3, 8, 15, 0.88) 0%,
+    rgba(3, 8, 15, 0.65) 50%,
+    rgba(3, 8, 15, 0.20) 80%,
+    transparent 100%
+  );
+  margin-bottom: 1rem;
+}
+
+.lifelane-landing-root .lrc-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--gold-accent);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin-bottom: 0.4rem;
+  text-shadow: 0 0 10px rgba(255, 184, 0, 0.4), 0 2px 6px rgba(0, 0, 0, 0.95);
+}
+
+.lifelane-landing-root .lrc-dot {
+  width: 7px;
+  height: 7px;
+  background: var(--gold-accent);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--gold-accent);
+}
+
+.lifelane-landing-root .lrc-heading {
+  font-family: var(--font-serif);
+  font-size: clamp(2rem, 3.2vw, 2.8rem);
+  line-height: 1.1;
+  font-weight: 400;
+  color: #FFFFFF;
+  text-shadow: 0 3px 14px rgba(0, 0, 0, 0.95);
+}
+
+.lifelane-landing-root .lrc-mission-badge {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid rgba(255, 184, 0, 0.35);
+  padding: 0.5rem 1rem;
+  border-radius: 50px;
+  display: flex;
+  gap: 0.5rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+}
+
+.lifelane-landing-root .badge-label {
+  color: var(--text-muted);
+}
+
+.lifelane-landing-root .badge-val {
+  color: var(--gold-accent);
+  font-weight: 700;
+}
+
+.lifelane-landing-root .lrc-dashboard-grid {
+  width: 100%;
+  flex: 1;
+  display: grid;
+  grid-template-columns: 32% 66%;
+  gap: 2%;
+  align-items: stretch;
+  min-height: 0;
+}
+
+.lifelane-landing-root .lrc-map-viewport {
+  pointer-events: auto;
+  position: relative;
+  border: 1px solid rgba(255, 193, 7, 0.35);
+  border-radius: 20px;
+  background: rgba(5, 10, 18, 0.05);
+  box-shadow: 0 0 25px rgba(255, 184, 0, 0.15), inset 0 0 40px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 1.25rem;
+  overflow: hidden;
+}
+
+.lifelane-landing-root .map-hud-top {
+  display: flex;
+  gap: 0.75rem;
+  z-index: 5;
+  padding: 0.25rem 0.5rem;
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(3, 8, 15, 0.60) 0%, rgba(3, 8, 15, 0) 100%);
+}
+
+.lifelane-landing-root .hud-status-chip {
+  background: rgba(8, 14, 24, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 0.5rem 0.85rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.78rem;
+  color: #E2E8F0;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9);
+}
+
+.lifelane-landing-root .hud-status-chip.active-chip {
+  border-color: rgba(255, 184, 0, 0.45);
+  background: rgba(12, 20, 32, 0.88);
+}
+
+.lifelane-landing-root .chip-num {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: var(--gold-accent);
+  font-size: 0.75rem;
+}
+
+.lifelane-landing-root .chip-title {
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.lifelane-landing-root .chip-badge {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.lifelane-landing-root .badge-warning {
+  background: rgba(255, 184, 0, 0.2);
+  color: var(--gold-accent);
+  border: 1px solid rgba(255, 184, 0, 0.4);
+}
+
+.lifelane-landing-root .badge-success {
+  background: rgba(34, 224, 107, 0.2);
+  color: var(--emerald-accent);
+  border: 1px solid rgba(34, 224, 107, 0.4);
+}
+
+.lifelane-landing-root .badge-emerald {
+  background: rgba(34, 224, 107, 0.25);
+  color: var(--emerald-accent);
+  border: 1px solid rgba(34, 224, 107, 0.5);
+}
+
+.lifelane-landing-root .chip-arrow {
+  color: var(--text-muted);
+  font-size: 1rem;
+}
+
+.lifelane-landing-root .map-hud-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  z-index: 5;
+}
+
+.lifelane-landing-root .map-mode-toggle {
+  display: flex;
+  background: rgba(8, 14, 24, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  padding: 2px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.lifelane-landing-root .map-toggle-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  padding: 0.3rem 0.75rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.lifelane-landing-root .map-toggle-btn.active {
+  background: rgba(255, 184, 0, 0.25);
+  color: #FFFFFF;
+  font-weight: 600;
+  border: 1px solid rgba(255, 184, 0, 0.4);
+}
+
+.lifelane-landing-root .map-brand-attribution {
+  font-size: 0.68rem;
+  color: rgba(255, 255, 255, 0.5);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(4, 8, 14, 0.75);
+  padding: 0.25rem 0.65rem;
+  border-radius: 6px;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+}
+
+.lifelane-landing-root .map-logo-text {
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: #E2E8F0;
+}
+
+.lifelane-landing-root .lrc-info-panel {
+  pointer-events: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  height: 100%;
+}
+
+.lifelane-landing-root .info-card {
+  background: rgba(6, 12, 20, 0.65);
+  border: 1px solid rgba(255, 193, 7, 0.28);
+  border-radius: 16px;
+  padding: 1rem 1.15rem;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.lifelane-landing-root .active-corridor-card {
+  background: rgba(6, 14, 22, 0.75);
+}
+
+.lifelane-landing-root .corridor-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.lifelane-landing-root .corridor-title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.lifelane-landing-root .pulse-emerald-dot {
+  width: 8px;
+  height: 8px;
+  background: var(--emerald-accent);
+  border-radius: 50%;
+  box-shadow: 0 0 10px var(--emerald-accent);
+}
+
+.lifelane-landing-root .corridor-title {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #FFFFFF;
+  letter-spacing: 0.08em;
+}
+
+.lifelane-landing-root .status-pill-emerald {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--emerald-accent);
+  background: rgba(34, 224, 107, 0.15);
+  border: 1px solid rgba(34, 224, 107, 0.35);
+  padding: 0.25rem 0.6rem;
+  border-radius: 50px;
+}
+
+.lifelane-landing-root .info-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.5rem;
+}
+
+.lifelane-landing-root .info-card-icon {
+  color: var(--gold-accent);
+  display: flex;
+  align-items: center;
+}
+
+.lifelane-landing-root .info-card-label {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--gold-accent);
+  letter-spacing: 0.08em;
+}
+
+.lifelane-landing-root .patient-status-row {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #FFFFFF;
+  margin-bottom: 0.4rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.lifelane-landing-root .patient-severity {
+  color: #FF5555;
+}
+
+.lifelane-landing-root .dot-separator {
+  color: var(--text-muted);
+}
+
+.lifelane-landing-root .patient-condition {
+  color: #FFFFFF;
+}
+
+.lifelane-landing-root .patient-details {
+  font-size: 0.8rem;
+  color: #CBD5E1;
+  line-height: 1.45;
+}
+
+.lifelane-landing-root .metrics-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.lifelane-landing-root .metric-card {
+  padding: 0.85rem 1rem;
+}
+
+.lifelane-landing-root .metric-label {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  margin-bottom: 0.35rem;
+  font-weight: 600;
+}
+
+.lifelane-landing-root .metric-val {
+  font-family: var(--font-mono);
+  font-size: 1.6rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.lifelane-landing-root .gold-val {
+  color: var(--gold-accent);
+  text-shadow: 0 0 12px rgba(255, 184, 0, 0.3);
+}
+
+.lifelane-landing-root .emerald-val {
+  color: var(--emerald-accent);
+  text-shadow: 0 0 12px rgba(34, 224, 107, 0.3);
+}
+
+.lifelane-landing-root .metric-unit {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  margin-left: 0.2rem;
+}
+
+.lifelane-landing-root .bed-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.lifelane-landing-root .bed-icon-box {
+  width: 34px;
+  height: 34px;
+  background: rgba(255, 184, 0, 0.12);
+  border: 1px solid rgba(255, 184, 0, 0.3);
+  color: var(--gold-accent);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lifelane-landing-root .bed-label {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.lifelane-landing-root .bed-value {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #FFFFFF;
+  margin-top: 0.1rem;
+}
+
+.lifelane-landing-root .btn-log-cta {
+  margin-top: auto;
+  background: rgba(12, 20, 32, 0.75);
+  border: 1px solid rgba(255, 184, 0, 0.35);
+  border-radius: 12px;
+  padding: 0.85rem 1.15rem;
+  color: #FFFFFF;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.lifelane-landing-root .btn-log-cta:hover {
+  background: rgba(18, 30, 48, 0.85);
+  border-color: var(--gold-accent);
+}
+
+.lifelane-landing-root .btn-arrow {
+  color: var(--gold-accent);
+}
+
+/* ---------------------------------------------------- */
+/* 6. FINAL LANDING STATE (Frame 285 -> Frame 292)      */
+/* ---------------------------------------------------- */
+.lifelane-landing-root .final-landing-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 100 !important;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem 2rem;
+  background: radial-gradient(ellipse at center, rgba(3, 8, 15, 0.78) 0%, rgba(3, 8, 15, 0.48) 45%, rgba(3, 8, 15, 0.15) 75%, transparent 100%);
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.lifelane-landing-root .final-landing-overlay.hidden {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+.lifelane-landing-root .fl-container {
+  pointer-events: auto;
+  width: 100%;
+  max-width: 880px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.lifelane-landing-root .fl-eyebrow-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  color: var(--gold-accent);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  background: rgba(8, 14, 24, 0.80);
+  border: 1px solid rgba(255, 184, 0, 0.35);
+  padding: 0.45rem 1.15rem;
+  border-radius: 50px;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5), 0 0 12px rgba(255, 184, 0, 0.15);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9);
+}
+
+.lifelane-landing-root .fl-infinity-symbol {
+  font-size: 1.1rem;
+  line-height: 1;
+  color: var(--gold-accent);
+  text-shadow: 0 0 8px var(--gold-accent);
+}
+
+.lifelane-landing-root .fl-heading {
+  font-family: var(--font-serif);
+  font-size: clamp(2.8rem, 5.2vw, 4.8rem);
+  line-height: 1.08;
+  font-weight: 400;
+  color: #FFFFFF;
+  margin-bottom: 1.25rem;
+  text-shadow: 0 3px 18px rgba(0, 0, 0, 0.95), 0 1px 4px rgba(0, 0, 0, 0.9);
+}
+
+.lifelane-landing-root .accent-text-italic {
+  color: var(--gold-accent);
+  font-style: italic;
+  text-shadow: 0 0 20px rgba(255, 184, 0, 0.35), 0 3px 18px rgba(0, 0, 0, 0.95);
+}
+
+.lifelane-landing-root .fl-description {
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: #E2E8F0;
+  max-width: 640px;
+  margin: 0 auto 2.25rem auto;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.95), 0 1px 3px rgba(0, 0, 0, 0.9);
+}
+
+.lifelane-landing-root .fl-cta-wrap {
+  margin-bottom: 2.75rem;
+}
+
+.lifelane-landing-root .btn-final-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #FFFFFF;
+  background: rgba(12, 20, 32, 0.82);
+  border: 1px solid rgba(255, 184, 0, 0.45);
+  padding: 0.95rem 2.5rem;
+  border-radius: 50px;
+  text-decoration: none;
+  letter-spacing: 0.04em;
+  box-shadow: 0 0 25px rgba(255, 184, 0, 0.25), 0 8px 30px rgba(0, 0, 0, 0.6);
+  transition: background 0.25s, transform 0.25s, border-color 0.25s, box-shadow 0.25s;
+}
+
+.lifelane-landing-root .btn-final-cta:hover {
+  background: rgba(18, 30, 48, 0.92);
+  border-color: var(--gold-accent);
+  transform: translateY(-2px);
+  box-shadow: 0 0 35px rgba(255, 184, 0, 0.45), 0 12px 35px rgba(0, 0, 0, 0.7);
+}
+
+.lifelane-landing-root .btn-final-arrow {
+  color: var(--gold-accent);
+  font-size: 1.1rem;
+  transition: transform 0.2s ease;
+}
+
+.lifelane-landing-root .btn-final-cta:hover .btn-final-arrow {
+  transform: translateX(4px);
+}
+
+.lifelane-landing-root .fl-bottom-label {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--gold-accent);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  opacity: 0.9;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.95);
+}
+
+.lifelane-landing-root .fl-divider-line {
+  width: 40px;
+  height: 1px;
+  background: var(--gold-accent);
+  opacity: 0.6;
+  box-shadow: 0 0 6px var(--gold-accent);
+}
+
+/* Media Queries for Responsiveness */
+@media (max-width: 1024px) {
+  .lifelane-landing-root .hero-overlay-layer {
+    padding: 2rem 1.5rem;
+  }
+  .lifelane-landing-root .hero-content-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  .lifelane-landing-root .hero-right {
+    justify-content: flex-start;
+  }
+  .lifelane-landing-root .bottom-features-strip {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .lifelane-landing-root .hiw-cards-wrapper {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .lifelane-landing-root .bottom-features-strip {
+    display: none;
+  }
+  .lifelane-landing-root .hero-headline {
+    font-size: 2.5rem;
+  }
+  .lifelane-landing-root .hiw-heading {
+    font-size: 2.2rem;
+  }
+}

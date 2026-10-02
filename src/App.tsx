@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   LifeLaneProvider,
   useLifeLane,
@@ -13,16 +13,21 @@ import { Dispatch } from './pages/Dispatch/Dispatch';
 import { HospitalConsole } from './pages/HospitalConsole/HospitalConsole';
 import { TrafficCommand } from './pages/TrafficCommand/TrafficCommand';
 import { Settings } from './pages/Settings/Settings';
-
+import { Landing } from './pages/Landing/Landing';
+const isLandingRoute = (hash: string) => hash === '' || hash === '#' || hash === '#landing';
 function AppContent() {
   const { activeRole, activeScreen, navigateToScreen } = useLifeLane();
-
+  const [isLanding, setIsLanding] = useState(() => isLandingRoute(window.location.hash.toLowerCase()));
   // Support URL hash navigation with role-based access guard
   useEffect(() => {
     const handleHash = () => {
       const hash = window.location.hash.toLowerCase();
+      if (isLandingRoute(hash)) {
+        setIsLanding(true);
+        return;
+      }
+      setIsLanding(false);
       let targetScreen: ScreenId | null = null;
-
       if (hash.includes('nurse')) {
         targetScreen = 'nurse';
       } else if (hash.includes('dispatch')) {
@@ -33,10 +38,9 @@ function AppContent() {
         targetScreen = 'traffic';
       } else if (hash.includes('settings') || hash.includes('config') || hash.includes('param')) {
         targetScreen = 'settings';
-      } else if (hash.includes('home') || hash === '' || hash === '#') {
+      } else if (hash.includes('home')) {
         targetScreen = 'home';
       }
-
       // If requested screen is valid and allowed for activeRole, navigate to it; otherwise redirect to role default screen
       if (targetScreen && ROLE_ALLOWED_SCREENS[activeRole].includes(targetScreen)) {
         navigateToScreen(targetScreen);
@@ -44,12 +48,13 @@ function AppContent() {
         navigateToScreen(ROLE_DEFAULT_SCREENS[activeRole]);
       }
     };
-
     handleHash();
     window.addEventListener('hashchange', handleHash);
     return () => window.removeEventListener('hashchange', handleHash);
   }, [activeRole]);
-
+  if (isLanding) {
+    return <Landing />;
+  }
   return (
     <LifeLaneAppLayout
       currentScreen={activeScreen}
@@ -69,7 +74,6 @@ function AppContent() {
     </LifeLaneAppLayout>
   );
 }
-
 export default function App() {
   return (
     <LifeLaneProvider>
