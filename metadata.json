@@ -1,0 +1,6 @@
+{
+  "name": "LifeLane - Emergency Coordination",
+  "description": "LifeLane emergency coordination interface connecting Ambulance, Hospital, and Traffic Command with real-time bed availability and transit corridors.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
